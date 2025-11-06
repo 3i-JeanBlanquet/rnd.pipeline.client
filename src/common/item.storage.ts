@@ -44,4 +44,11 @@ export class ItemStorage{
       return `items/${this._id}/features`;
     }
   }
+  public getFeatureFile():string{
+    if(this._parentId){
+      return `items/${this._parentId}/children/${this._id}/features/features.png`;
+    }else{
+      return `items/${this._id}/features/features.png`;
+    }
+  }
 }

@@ -1,0 +1,287 @@
+import React, { useState, useEffect } from 'react';
+import { ImageData, ApiError, imageService } from '../services';
+import { GetItemsRequest, ItemFilterRequest } from '../models';
+import ImageRow from './ImageRow';
+import ImageModal from './ImageModal';
+import SearchFilterPanel from './SearchFilterPanel';
+
+interface ImageGalleryProps {
+  // Component is now self-contained and manages its own data
+}
+
+const ImageGallery: React.FC<ImageGalleryProps> = () => {
+  const [images, setImages] = useState<ImageData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+  const [showDepthImage, setShowDepthImage] = useState(false);
+  const [showFeatureImage, setShowFeatureImage] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  
+  // Filter and sort state
+  const [itemIds, setItemIds] = useState<string>('');
+  const [parentIds, setParentIds] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt' | '_id' | 'extension' | 'tilingStatus' | 'featureStatus' | 'depthStatus'>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+
+  const handleImageClick = (image: ImageData) => {
+    setSelectedImage(image);
+    setShowDepthImage(false);
+    setShowFeatureImage(false);
+  };
+
+  const handleDepthImageClick = (image: ImageData) => {
+    setSelectedImage(image);
+    setShowDepthImage(true);
+    setShowFeatureImage(false);
+  };
+
+  const handleFeatureImageClick = (image: ImageData) => {
+    setSelectedImage(image);
+    setShowDepthImage(false);
+    setShowFeatureImage(true);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    setShowDepthImage(false);
+    setShowFeatureImage(false);
+  };
+
+  const handleImageError = (imageId: string, imageType: string) => {
+    const errorKey = `${imageId}-${imageType}`;
+    setImageErrors(prev => new Set(prev).add(errorKey));
+  };
+
+  const isImageError = (imageId: string, imageType: string): boolean => {
+    const errorKey = `${imageId}-${imageType}`;
+    return imageErrors.has(errorKey);
+  };
+
+  // Helper function to parse IDs string into array
+  const parseIdsString = (idsString: string): string[] => {
+    if (!idsString || idsString.trim() === '') return [];
+    return idsString
+      .split(/[,\n]/)
+      .map(id => id.trim())
+      .filter(id => id.length > 0);
+  };
+
+  // Fetch images with filters
+  const fetchImages = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Parse itemIds and parentIds
+      const itemIdsList = parseIdsString(itemIds);
+      const parentIdsList = parseIdsString(parentIds);
+      
+      // Build filter object
+      // Note: If multiple IDs are provided, we'll use the first one for now
+      // If API supports multiple IDs, we can extend this to send comma-separated or array
+      const filter: ItemFilterRequest = {};
+      if (itemIdsList.length > 0) {
+        // For multiple IDs, join with comma or use first one
+        // Adjust based on API support
+        filter._id = itemIdsList.length === 1 ? itemIdsList[0] : itemIdsList.join(',');
+      }
+      if (parentIdsList.length > 0) {
+        filter.parentId = parentIdsList.length === 1 ? parentIdsList[0] : parentIdsList.join(',');
+      }
+      
+      const request: GetItemsRequest = {
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+        filter: Object.keys(filter).length > 0 ? filter : undefined
+      };
+      
+      const response = await imageService.getImages(limit, request);
+      console.log('Images API Response:', response);
+      
+      // Handle different response structures
+      let imagesData = response.data;
+      let imagesList: ImageData[] = [];
+      
+      if (Array.isArray(imagesData)) {
+        imagesList = imagesData;
+      } else if (imagesData && typeof imagesData === 'object' && 'items' in imagesData && Array.isArray((imagesData as any).items)) {
+        imagesList = (imagesData as any).items;
+      } else if (imagesData && typeof imagesData === 'object' && 'data' in imagesData && Array.isArray((imagesData as any).data)) {
+        imagesList = (imagesData as any).data;
+      } else {
+        console.warn('Unexpected response structure:', imagesData);
+        imagesList = [];
+      }
+      
+      setImages(imagesList);
+    } catch (err) {
+      console.error('Failed to fetch images:', err);
+      const apiError = err as ApiError;
+      setError(`Failed to fetch images: ${apiError.message}`);
+      setImages([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch images on mount and when filters/sort change
+  useEffect(() => {
+    fetchImages();
+  }, [page, limit, sortBy, sortOrder]);
+
+  // Clear all filters
+  const handleClearFilters = () => {
+    setItemIds('');
+    setParentIds('');
+    setSortBy('createdAt');
+    setSortOrder('desc');
+    setPage(1);
+    setLimit(20);
+  };
+
+  // Handle limit change
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
+  };
+
+  return (
+    <>
+      <div>
+        {/* Search and Filter Panel */}
+        <SearchFilterPanel
+          itemIds={itemIds}
+          onItemIdsChange={(value) => { setItemIds(value); setPage(1); }}
+          parentIds={parentIds}
+          onParentIdsChange={(value) => { setParentIds(value); setPage(1); }}
+          onClearFilters={handleClearFilters}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
+          page={page}
+          limit={limit}
+          onLimitChange={handleLimitChange}
+          loading={loading}
+          itemCount={images.length}
+          onApplyFilters={() => { setPage(1); fetchImages(); }}
+          onRefresh={fetchImages}
+        />
+
+        {/* Pagination Controls */}
+        {!loading && images.length > 0 && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            alignItems: 'center',
+            marginBottom: '20px',
+            gap: '10px'
+          }}>
+            <button
+              onClick={() => setPage(prev => Math.max(1, prev - 1))}
+              disabled={page === 1 || loading}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: page === 1 ? '#6c757d' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                fontSize: '12px',
+                opacity: page === 1 ? 0.6 : 1
+              }}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage(prev => prev + 1)}
+              disabled={images.length < limit || loading}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: images.length < limit ? '#6c757d' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: images.length < limit ? 'not-allowed' : 'pointer',
+                fontSize: '12px',
+                opacity: images.length < limit ? 0.6 : 1
+              }}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {error && (
+          <div style={{
+            backgroundColor: '#fee',
+            color: '#c33',
+            padding: '12px',
+            borderRadius: '4px',
+            marginBottom: '20px',
+            border: '1px solid #fcc'
+          }}>
+            <strong>Error:</strong> {error}
+          </div>
+        )}
+
+        {loading && (!Array.isArray(images) || images.length === 0) ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            Loading images...
+          </div>
+        ) : !Array.isArray(images) || images.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            No images found. Upload your first image above!
+          </div>
+        ) : (
+          <div style={{ 
+            backgroundColor: '#fff',
+            border: '1px solid #e9ecef',
+            borderRadius: '8px',
+            overflow: 'hidden'
+          }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #e9ecef' }}>
+                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Image</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Depth</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Feature</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>ID</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {images.map((image) => (
+                  <ImageRow
+                    key={image._id}
+                    image={image}
+                    onImageClick={handleImageClick}
+                    onDepthImageClick={handleDepthImageClick}
+                    onFeatureImageClick={handleFeatureImageClick}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {selectedImage && (
+        <ImageModal
+          image={selectedImage}
+          showDepthImage={showDepthImage}
+          showFeatureImage={showFeatureImage}
+          onClose={closeImageModal}
+          onImageError={handleImageError}
+          isImageError={isImageError}
+        />
+      )}
+    </>
+  );
+};
+
+export default ImageGallery;

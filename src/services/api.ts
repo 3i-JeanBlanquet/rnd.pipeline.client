@@ -133,7 +133,8 @@ export class ApiService {
   // File upload method
   async uploadFile<T>(endpoint: string, file: File, additionalData?: Record<string, any>): Promise<ApiResponse<T>> {
     const formData = new FormData();
-    formData.append('file', file);
+    // Append the file with proper filename and content type, matching the working code pattern
+    formData.append('image', file, file.name);
     
     if (additionalData) {
       Object.entries(additionalData).forEach(([key, value]) => {
