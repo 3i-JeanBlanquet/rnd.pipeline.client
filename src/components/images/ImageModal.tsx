@@ -1,6 +1,6 @@
 import React from 'react';
-import { imageService, ImageData } from '../services';
-import { getStatusColor, getStatusTextColor } from '../utils/statusUtils';
+import { imageService, ImageData } from '../../services';
+import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
 
 interface ImageModalProps {
   image: ImageData;

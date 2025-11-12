@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ImageData, ApiError, imageService } from '../services';
-import { GetItemsRequest, ItemFilterRequest } from '../models';
+import { ImageData, ApiError, imageService } from '../../services';
+import { GetItemsRequest, ItemFilterRequest } from '../../models';
 import ImageRow from './ImageRow';
 import ImageModal from './ImageModal';
-import SearchFilterPanel from './SearchFilterPanel';
+import SearchFilterPanel from '../common/SearchFilterPanel';
 
 interface ImageGalleryProps {
   // Component is now self-contained and manages its own data
@@ -133,16 +133,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
     fetchImages();
   }, [page, limit, sortBy, sortOrder]);
 
-  // Clear all filters
-  const handleClearFilters = () => {
-    setItemIds('');
-    setParentIds('');
-    setSortBy('createdAt');
-    setSortOrder('desc');
-    setPage(1);
-    setLimit(20);
-  };
-
   // Handle limit change
   const handleLimitChange = (newLimit: number) => {
     setLimit(newLimit);
@@ -158,7 +148,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
           onItemIdsChange={(value) => { setItemIds(value); setPage(1); }}
           parentIds={parentIds}
           onParentIdsChange={(value) => { setParentIds(value); setPage(1); }}
-          onClearFilters={handleClearFilters}
           sortBy={sortBy}
           onSortByChange={setSortBy}
           sortOrder={sortOrder}
@@ -169,7 +158,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
           loading={loading}
           itemCount={images.length}
           onApplyFilters={() => { setPage(1); fetchImages(); }}
-          onRefresh={fetchImages}
         />
 
         {/* Pagination Controls */}
@@ -244,28 +232,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
             borderRadius: '8px',
             overflow: 'hidden'
           }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #e9ecef' }}>
-                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Image</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Depth</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Feature</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>ID</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {images.map((image) => (
-                  <ImageRow
-                    key={image._id}
-                    image={image}
-                    onImageClick={handleImageClick}
-                    onDepthImageClick={handleDepthImageClick}
-                    onFeatureImageClick={handleFeatureImageClick}
-                  />
-                ))}
-              </tbody>
-            </table>
+            {images.map((image) => (
+              <ImageRow
+                key={image._id}
+                image={image}
+                onImageClick={handleImageClick}
+                onDepthImageClick={handleDepthImageClick}
+                onFeatureImageClick={handleFeatureImageClick}
+              />
+            ))}
           </div>
         )}
       </div>

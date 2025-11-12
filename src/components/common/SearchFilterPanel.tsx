@@ -5,7 +5,6 @@ interface SearchFilterPanelProps {
   onItemIdsChange: (value: string) => void;
   parentIds?: string;
   onParentIdsChange: (value: string) => void;
-  onClearFilters: () => void;
   sortBy: 'createdAt' | 'updatedAt' | '_id' | 'extension' | 'tilingStatus' | 'featureStatus' | 'depthStatus';
   onSortByChange: (value: 'createdAt' | 'updatedAt' | '_id' | 'extension' | 'tilingStatus' | 'featureStatus' | 'depthStatus') => void;
   sortOrder: 'asc' | 'desc';
@@ -16,7 +15,6 @@ interface SearchFilterPanelProps {
   loading: boolean;
   itemCount: number;
   onApplyFilters: () => void;
-  onRefresh: () => void;
 }
 
 const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
@@ -24,7 +22,6 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
   onItemIdsChange,
   parentIds,
   onParentIdsChange,
-  onClearFilters,
   sortBy,
   onSortByChange,
   sortOrder,
@@ -35,7 +32,6 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
   loading,
   itemCount,
   onApplyFilters,
-  onRefresh,
 }) => {
   const [showFilters, setShowFilters] = React.useState(false);
 
@@ -65,37 +61,7 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
             {showFilters ? '▼ Hide Filters' : '▶ Show Filters'}
           </button>
           <button
-            onClick={onClearFilters}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '12px'
-            }}
-          >
-            Clear All
-          </button>
-          <button
             onClick={onApplyFilters}
-            disabled={loading}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              fontSize: '12px'
-            }}
-          >
-            Apply Filters
-          </button>
-          <button
-            onClick={onRefresh}
             disabled={loading}
             style={{
               padding: '6px 12px',
@@ -108,7 +74,7 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
               fontSize: '12px'
             }}
           >
-            {loading ? 'Loading...' : '↻ Refresh'}
+            {loading ? 'Loading...' : '↻ Apply & Refresh'}
           </button>
         </div>
       </div>

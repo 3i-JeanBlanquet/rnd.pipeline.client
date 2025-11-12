@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { imageService, matchService, bundleService, ApiError, ImageData, MatchData, BundleData } from './services';
 import { GetItemsRequest } from './models';
-import Expandable from './components/Expandable';
-import ImageUpload from './components/ImageUpload';
-import ImageGallery from './components/ImageGallery';
-import MatchCreate from './components/MatchCreate';
-import MatchGallery from './components/MatchGallery';
-import BundleGallery from './components/BundleGallery';
+import Expandable from './components/common/Expandable';
+import ImageCreate from './components/images/ImageCreate';
+import ImageGallery from './components/images/ImageGallery';
+import MatchCreate from './components/matches/MatchCreate';
+import MatchGallery from './components/matches/MatchGallery';
+import BundleGallery from './components/bundles/BundleGallery';
+import BundleCreate from './components/bundles/BundleCreate';
 import logoImage from './assets/3i.png';
+import ItemListIcon from './components/icons/ItemListIcon';
+import MatchAddIcon from './components/icons/MatchAddIcon';
+import MatchListIcon from './components/icons/MatchListIcon';
+import BundleListIcon from './components/icons/BundleListIcon';
 
 const App: React.FC = () => {
   const [images, setImages] = useState<ImageData[]>([]);
@@ -151,21 +156,34 @@ const App: React.FC = () => {
           gap: 0,
           width: '100%'
         }}>
-          <Expandable title="Add a new Item">
-            <ImageUpload onUploadSuccess={fetchImages} />
+          <Expandable 
+            title="ITEM › ADD"
+            icon={<ItemListIcon />}
+          >
+            <ImageCreate onUploadSuccess={fetchImages} />
           </Expandable>
           
-          <Expandable title="Item Gallery">
+          <Expandable 
+            title="ITEM › LIST"
+            icon={<ItemListIcon />}
+          >
             <ImageGallery />
           </Expandable>
           
-          <Expandable title="Add a new Match">
+          <Expandable 
+            title="MATCH › ADD"
+            icon={<MatchAddIcon />}
+          >
             <MatchCreate 
               onCreateSuccess={fetchMatches}
             />
           </Expandable>
           
-          <Expandable title="Match Gallery" badge={matches.length}>
+          <Expandable 
+            title="MATCH › LIST" 
+            badge={matches.length}
+            icon={<MatchListIcon />}
+          >
             <MatchGallery 
               matches={matches}
               loading={matchesLoading}
@@ -174,7 +192,20 @@ const App: React.FC = () => {
             />
           </Expandable>
           
-          <Expandable title="Bundle Gallery" badge={bundles.length}>
+          <Expandable 
+            title="BUNDLE › ADD"
+            icon={<BundleListIcon />}
+          >
+            <BundleCreate 
+              onCreateSuccess={fetchBundles}
+            />
+          </Expandable>
+          
+          <Expandable 
+            title="BUNDLE › LIST" 
+            badge={bundles.length}
+            icon={<BundleListIcon />}
+          >
             <BundleGallery 
               bundles={bundles}
               loading={bundlesLoading}

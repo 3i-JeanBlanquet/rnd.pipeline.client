@@ -5,13 +5,15 @@ interface ExpandableProps {
   children: ReactNode;
   badge?: string | number;
   defaultExpanded?: boolean;
+  icon?: ReactNode;
 }
 
 const Expandable: React.FC<ExpandableProps> = ({
   title,
   children,
   badge,
-  defaultExpanded = false
+  defaultExpanded = false,
+  icon
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
@@ -49,13 +51,44 @@ const Expandable: React.FC<ExpandableProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {icon && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '24px',
+              height: '24px',
+              flexShrink: 0
+            }}>
+              {icon}
+            </div>
+          )}
           <h2 style={{ 
             margin: '0', 
             color: '#333',
             fontSize: '18px',
-            fontWeight: '600'
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            {title}
+            {title.split('› ').map((part, index) => (
+              <span key={index}>
+                {index > 0 && (
+                  <span style={{ 
+                    color: '#999', 
+                    fontWeight: '400',
+                    margin: '0 4px'
+                  }}>›</span>
+                )}
+                <span style={{ 
+                  color: index === 0 ? '#666' : '#333',
+                  fontWeight: index === 0 ? '500' : '600'
+                }}>
+                  {part}
+                </span>
+              </span>
+            ))}
           </h2>
           {badge && (
             <span style={{

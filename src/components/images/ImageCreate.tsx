@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { imageService, ApiError } from '../services';
+import { imageService, ApiError } from '../../services';
 
-interface ImageUploadProps {
+interface ImageCreateProps {
   onUploadSuccess: () => void;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onUploadSuccess }) => {
+const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -193,4 +193,4 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUploadSuccess }) => {
   );
 };
 
-export default ImageUpload;
+export default ImageCreate;

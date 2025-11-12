@@ -2,7 +2,7 @@ import { ProcessingStatus } from '../services';
 
 export const getStatusColor = (status: ProcessingStatus): string => {
   switch (status) {
-    case ProcessingStatus.COMPLETED:
+    case ProcessingStatus.PROCESSED:
       return '#d4edda';
     case ProcessingStatus.PROCESSING:
       return '#fff3cd';
@@ -16,7 +16,7 @@ export const getStatusColor = (status: ProcessingStatus): string => {
 
 export const getStatusTextColor = (status: ProcessingStatus): string => {
   switch (status) {
-    case ProcessingStatus.COMPLETED:
+    case ProcessingStatus.PROCESSED:
       return '#155724';
     case ProcessingStatus.PROCESSING:
       return '#856404';

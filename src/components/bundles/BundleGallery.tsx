@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { BundleData, ProcessingStatus, imageService, bundleService } from '../services';
-import { ImageData } from '../models';
-import JSZip from 'jszip';
-import ImageViewerModal from './ImageViewerModal';
+import { BundleData, bundleService, imageService } from '../../services';
+import { ImageData } from '../../models';
+import ImageViewerModal from '../images/ImageViewerModal';
+import BundleRow from './BundleRow';
+import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
+import { downloadBundleAsZip } from '../../utils/bundleDownload';
 
 interface BundleGalleryProps {
   bundles: BundleData[];
@@ -64,33 +66,6 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
     });
   };
 
-  const getStatusColor = (status: ProcessingStatus): string => {
-    switch (status) {
-      case ProcessingStatus.PROCESSED:
-        return '#d4edda';
-      case ProcessingStatus.PROCESSING:
-        return '#fff3cd';
-      case ProcessingStatus.FAILED:
-        return '#f8d7da';
-      case ProcessingStatus.PENDING:
-      default:
-        return '#e2e3e5';
-    }
-  };
-
-  const getStatusTextColor = (status: ProcessingStatus): string => {
-    switch (status) {
-      case ProcessingStatus.PROCESSED:
-        return '#155724';
-      case ProcessingStatus.PROCESSING:
-        return '#856404';
-      case ProcessingStatus.FAILED:
-        return '#721c24';
-      case ProcessingStatus.PENDING:
-      default:
-        return '#383d41';
-    }
-  };
 
   // Download a single file
   const downloadFile = async (url: string, filename: string) => {
@@ -114,103 +89,9 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
     }
   };
 
-  // Download all bundle files as a zip
-  const downloadBundleAsZip = async (bundle: BundleData) => {
-    setDownloading(bundle._id);
-    try {
-      const zip = new JSZip();
-      const files: Array<{ url: string; path: string; name: string }> = [];
-
-      // Add all 3D database files (attempt all regardless of status)
-      files.push({
-        url: bundleService.get3DDatabaseUrl(bundle),
-        path: '3d/data.db',
-        name: 'data.db'
-      });
-      files.push({
-        url: bundleService.get3DPointsUrl(bundle),
-        path: '3d/points3D.bin',
-        name: 'points3D.bin'
-      });
-      files.push({
-        url: bundleService.get3DImagesUrl(bundle),
-        path: '3d/images.bin',
-        name: 'images.bin'
-      });
-      files.push({
-        url: bundleService.get3DCamerasUrl(bundle),
-        path: '3d/cameras.bin',
-        name: 'cameras.bin'
-      });
-      files.push({
-        url: bundleService.getCamerasUrl(bundle),
-        path: '3d/cameras.json',
-        name: 'cameras.json'
-      });
-
-      // Add all mesh files (attempt all regardless of status)
-      files.push({
-        url: bundleService.get3DMeshUrl(bundle),
-        path: '3d/mesh.ply',
-        name: 'mesh.ply'
-      });
-      files.push({
-        url: bundleService.get3DMeshGeometryUrl(bundle),
-        path: '3d/textured_mesh.obj',
-        name: 'textured_mesh.obj'
-      });
-      files.push({
-        url: bundleService.get3DMeshMaterialUrl(bundle),
-        path: '3d/textured_mesh.mtl',
-        name: 'textured_mesh.mtl'
-      });
-      files.push({
-        url: bundleService.get3DTexturedConfUrl(bundle),
-        path: '3d/textured_mesh.conf',
-        name: 'textured_mesh.conf'
-      });
-
-      // Fetch all files and add to zip
-      let successCount = 0;
-      let failCount = 0;
-
-      for (const file of files) {
-        try {
-          const response = await fetch(file.url);
-          if (response.ok) {
-            const blob = await response.blob();
-            zip.file(file.path, blob);
-            successCount++;
-          } else {
-            console.warn(`Failed to fetch ${file.name}: ${response.status}`);
-            failCount++;
-          }
-        } catch (error) {
-          console.error(`Error fetching ${file.name}:`, error);
-          failCount++;
-        }
-      }
-
-      // Generate zip file
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
-      const downloadUrl = window.URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `bundle_${bundle._id}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-
-      if (failCount > 0) {
-        alert(`Downloaded ${successCount} files. ${failCount} files could not be downloaded (may not exist yet).`);
-      }
-    } catch (error) {
-      console.error('Error creating zip:', error);
-      alert('Failed to create zip file. Please try again.');
-    } finally {
-      setDownloading(null);
-    }
+  // Wrapper function to handle downloading state
+  const handleDownloadBundleAsZip = async (bundle: BundleData) => {
+    await downloadBundleAsZip(bundle, setDownloading);
   };
 
   return (
@@ -257,236 +138,21 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
             No bundles found.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {bundles.map((bundle) => {
-              const isExpanded = expandedBundles.has(bundle._id);
-              return (
-                <div
-                  key={bundle.id}
-                  style={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e9ecef',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  {/* Main bundle card */}
-                  <div
-                    style={{
-                      padding: '16px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      backgroundColor: '#f8f9fa',
-                      borderBottom: isExpanded ? '1px solid #e9ecef' : 'none',
-                      transition: 'background-color 0.2s ease'
-                    }}
-                    onClick={() => toggleBundleExpansion(bundle._id)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#e9ecef';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f8f9fa';
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{
-                        fontSize: '20px',
-                        color: '#666',
-                        transition: 'transform 0.3s ease',
-                        transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'
-                      }}>
-                        ▶
-                      </div>
-                      <div>
-                        <h3 style={{ margin: '0', fontSize: '16px', color: '#333', fontWeight: '600' }}>
-                          {bundle._id}
-                        </h3>
-                        <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#666' }}>
-                          {bundle.itemIds.length} items • Created: {bundle.createdAt ? formatDate(bundle.createdAt) : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      {/* Status badges */}
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <span style={{
-                          padding: '3px 8px',
-                          borderRadius: '4px',
-                          fontSize: '10px',
-                          fontWeight: '500',
-                          backgroundColor: getStatusColor(bundle.featureStatus),
-                          color: getStatusTextColor(bundle.featureStatus)
-                        }}>
-                          Features: {bundle.featureStatus}
-                        </span>
-                        <span style={{
-                          padding: '3px 8px',
-                          borderRadius: '4px',
-                          fontSize: '10px',
-                          fontWeight: '500',
-                          backgroundColor: getStatusColor(bundle.reconstruction),
-                          color: getStatusTextColor(bundle.reconstruction)
-                        }}>
-                          Reconstruction: {bundle.reconstruction}
-                        </span>
-                        <span style={{
-                          padding: '3px 8px',
-                          borderRadius: '4px',
-                          fontSize: '10px',
-                          fontWeight: '500',
-                          backgroundColor: getStatusColor(bundle.meshStatus),
-                          color: getStatusTextColor(bundle.meshStatus)
-                        }}>
-                          Mesh: {bundle.meshStatus}
-                        </span>
-                      </div>
-                      
-                      {/* Action buttons */}
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            downloadBundleAsZip(bundle);
-                          }}
-                          disabled={downloading === bundle._id}
-                          style={{
-                            padding: '6px 12px',
-                            backgroundColor: downloading === bundle._id ? '#6c757d' : '#17a2b8',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: downloading === bundle._id ? 'not-allowed' : 'pointer',
-                            fontSize: '12px',
-                            opacity: downloading === bundle._id ? 0.6 : 1
-                          }}
-                          title="Download all bundle files as ZIP"
-                        >
-                          {downloading === bundle._id ? '⏳ Downloading...' : '📦 Download ZIP'}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleBundleClick(bundle);
-                          }}
-                          style={{
-                            padding: '6px 12px',
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px'
-                          }}
-                        >
-                          Details
-                        </button>
-                        {onDeleteBundle && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteBundle(bundle._id);
-                            }}
-                            style={{
-                              padding: '6px 12px',
-                              backgroundColor: '#dc3545',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '12px'
-                            }}
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Expandable items section */}
-                  {isExpanded && (
-                    <div style={{ padding: '16px', backgroundColor: '#fff' }}>
-                      <div style={{ marginBottom: '12px' }}>
-                        <strong style={{ fontSize: '14px', color: '#495057' }}>
-                          Items ({bundle.itemIds.length}):
-                        </strong>
-                      </div>
-                      <div style={{ 
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                        gap: '12px',
-                        padding: '12px',
-                        backgroundColor: '#f8f9fa',
-                        borderRadius: '6px',
-                        border: '1px solid #dee2e6',
-                        maxHeight: '400px',
-                        overflowY: 'auto'
-                      }}>
-                        {bundle.itemIds.map((itemId, index) => {
-                          // Create minimal ImageData for getting image URL
-                          const imageData: Partial<ImageData> = { _id: itemId, extension: 'jpg' };
-                          const imageUrl = imageService.getImageUrl(imageData as ImageData);
-                          
-                          return (
-                            <div
-                              key={index}
-                              style={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                gap: '8px',
-                                padding: '8px 12px',
-                                backgroundColor: '#fff',
-                                borderRadius: '6px',
-                                fontSize: '12px',
-                                fontFamily: 'monospace',
-                                color: '#495057',
-                                border: '1px solid #ced4da',
-                                cursor: 'default',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                              }}
-                              title={`Item ID: ${itemId}`}
-                            >
-                              <img
-                                src={imageUrl}
-                                alt={`Item ${itemId}`}
-                                onClick={() => handleImageClick(imageUrl, itemId)}
-                                style={{
-                                  width: '60px',
-                                  height: '60px',
-                                  objectFit: 'cover',
-                                  borderRadius: '4px',
-                                  border: '1px solid #ddd',
-                                  cursor: 'pointer',
-                                  transition: 'transform 0.2s ease'
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.transform = 'scale(1.05)';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.transform = 'scale(1)';
-                                }}
-                                onError={(e) => {
-                                  // Hide image if it fails to load
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                              <span style={{ fontSize: '11px', wordBreak: 'break-all' }}>
-                                {itemId}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0, width: '100%' }}>
+            {bundles.map((bundle) => (
+              <BundleRow
+                key={bundle._id}
+                bundle={bundle}
+                isExpanded={expandedBundles.has(bundle._id)}
+                onToggleExpansion={toggleBundleExpansion}
+                onBundleClick={handleBundleClick}
+                onDeleteBundle={onDeleteBundle}
+                onImageClick={handleImageClick}
+                onDownloadZip={handleDownloadBundleAsZip}
+                downloading={downloading}
+                onRefresh={onRefresh}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -547,7 +213,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <h3 style={{ margin: '0', color: '#333' }}>Bundle Details</h3>
                 <button
-                  onClick={() => downloadBundleAsZip(selectedBundle)}
+                  onClick={() => handleDownloadBundleAsZip(selectedBundle)}
                   disabled={downloading === selectedBundle._id}
                   style={{
                     padding: '8px 16px',
@@ -775,8 +441,8 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                   }}>
                     {selectedBundle.itemIds.map((itemId, index) => {
                       // Create minimal ImageData for getting image URL
-                      const imageData: Partial<ImageData> = { _id: itemId, extension: 'jpg' };
-                      const imageUrl = imageService.getImageUrl(imageData as ImageData);
+                      const imageData = { _id: itemId, extension: 'jpg' } as ImageData;
+                      const imageUrl = imageService.getImageUrl(imageData);
                       
                       return (
                         <div

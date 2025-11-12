@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { matchService, MatchData } from '../services';
+import { matchService, MatchData } from '../../services';
 
 interface MatchGalleryProps {
   matches: MatchData[];
