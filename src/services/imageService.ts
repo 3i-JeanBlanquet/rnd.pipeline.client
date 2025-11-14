@@ -100,30 +100,7 @@ export class ImageService {
       body: requestBody
     });
     
-    // Use direct fetch to match curl behavior exactly
-    const response = await fetch(`${config.apiBaseUrl}/items/${itemId}/pano`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw {
-        message: errorData.message || 'Request failed',
-        status: response.status,
-        code: errorData.code,
-      };
-    }
-    
-    const responseData = await response.json();
-    return {
-      data: responseData,
-      status: response.status,
-      message: responseData.message,
-    };
+    return this.api.post(`/items/${itemId}/pano`, requestBody);
   }
 
   async runFeature(itemId: string, requestId: string, force: boolean = true) {
@@ -139,30 +116,7 @@ export class ImageService {
       body: requestBody
     });
     
-    // Use direct fetch to match curl behavior exactly
-    const response = await fetch(`${config.apiBaseUrl}/items/${itemId}/feature`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw {
-        message: errorData.message || 'Request failed',
-        status: response.status,
-        code: errorData.code,
-      };
-    }
-    
-    const responseData = await response.json();
-    return {
-      data: responseData,
-      status: response.status,
-      message: responseData.message,
-    };
+    return this.api.post(`/items/${itemId}/feature`, requestBody);
   }
 
   async runDepth(itemId: string, requestId: string, force: boolean = true) {
@@ -178,29 +132,6 @@ export class ImageService {
       body: requestBody
     });
     
-    // Use direct fetch to match curl behavior exactly
-    const response = await fetch(`${config.apiBaseUrl}/items/${itemId}/deep`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw {
-        message: errorData.message || 'Request failed',
-        status: response.status,
-        code: errorData.code,
-      };
-    }
-    
-    const responseData = await response.json();
-    return {
-      data: responseData,
-      status: response.status,
-      message: responseData.message,
-    };
+    return this.api.post(`/items/${itemId}/deep`, requestBody);
   }
 }

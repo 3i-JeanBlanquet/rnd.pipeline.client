@@ -48,7 +48,7 @@ export class ApiService {
       method = 'GET',
       headers = {},
       body,
-      timeout = 10000,
+      timeout = 600000,
       isFormData = false,
     } = config;
 

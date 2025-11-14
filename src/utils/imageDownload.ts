@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
-import { ImageData, imageService, GetItemsRequest } from '../services';
+import { ImageData, imageService } from '../services';
 import { ProcessingStatus } from '../models/ProcessingStatus';
+import { GetItemsRequest } from '../models';
 import { ItemStorage } from '../common/item.storage';
 
 /**
@@ -124,19 +125,35 @@ const fetchFileAndAddToZip = async (
   zip: JSZip
 ): Promise<{ success: boolean }> => {
   try {
-    // Explicitly set CORS mode to ensure proper handling
-    const response = await fetch(file.url, {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'omit', // Don't send credentials to avoid preflight
-      cache: 'no-cache'
-    });
-    if (response.ok) {
-      const blob = await response.blob();
-      zip.file(file.path, blob);
-      return { success: true };
-    } else {
-      console.warn(`Failed to fetch ${file.name}: ${response.status}`);
+    // Set 10 minute timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 600000);
+    
+    try {
+      // Explicitly set CORS mode to ensure proper handling
+      const response = await fetch(file.url, {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'omit', // Don't send credentials to avoid preflight
+        cache: 'no-cache',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (response.ok) {
+        const blob = await response.blob();
+        zip.file(file.path, blob);
+        return { success: true };
+      } else {
+        console.warn(`Failed to fetch ${file.name}: ${response.status}`);
+        return { success: false };
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error(`Timeout fetching ${file.name}`);
+      } else {
+        console.error(`Error fetching ${file.name}:`, error);
+      }
       return { success: false };
     }
   } catch (error) {
@@ -223,21 +240,37 @@ const fetchAndAddChildImageToZip = async (
     const itemStorage = new ItemStorage(childImage._id, childImage.extension, childImage.parentId);
     const imageUrl = imageService.getImageUrl(childImage);
     
-    // Explicitly set CORS mode to ensure proper handling
-    const response = await fetch(imageUrl, {
-      method: 'GET',
-      mode: 'cors',
-      credentials: 'omit', // Don't send credentials to avoid preflight
-      cache: 'no-cache'
-    });
+    // Set 10 minute timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 600000);
     
-    if (response.ok) {
-      const blob = await response.blob();
-      const imagePath = itemStorage.getImageFile();
-      zip.file(imagePath, blob);
-      return { success: true };
-    } else {
-      console.warn(`Failed to fetch child image ${childImage._id}: ${response.status}`);
+    try {
+      // Explicitly set CORS mode to ensure proper handling
+      const response = await fetch(imageUrl, {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'omit', // Don't send credentials to avoid preflight
+        cache: 'no-cache',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const blob = await response.blob();
+        const imagePath = itemStorage.getImageFile();
+        zip.file(imagePath, blob);
+        return { success: true };
+      } else {
+        console.warn(`Failed to fetch child image ${childImage._id}: ${response.status}`);
+        return { success: false };
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error(`Timeout fetching child image ${childImage._id}`);
+      } else {
+        console.error(`Error fetching child image ${childImage._id}:`, error);
+      }
       return { success: false };
     }
   } catch (error) {

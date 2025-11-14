@@ -95,34 +95,34 @@ export class BundleService {
   }
 
   async getBundle(id: string) {
-    return this.api.get<BundleData>(`/bundles/${id}`, { timeout: 180000 });
+    return this.api.get<BundleData>(`/bundles/${id}`);
   }
 
   async runFeature(bundleId: string) {
-    return this.api.post(`/bundles/${bundleId}/features`, {}, { timeout: 180000 });
+    return this.api.post(`/bundles/${bundleId}/features`, {});
   }
 
   async runReconstruction(bundleId: string) {
-    return this.api.post(`/bundles/${bundleId}/construction`, {}, { timeout: 180000 });
+    return this.api.post(`/bundles/${bundleId}/construction`, {});
   }
 
   async runMesh(bundleId: string) {
-    return this.api.post(`/bundles/${bundleId}/mesh`, {}, { timeout: 180000 });
+    return this.api.post(`/bundles/${bundleId}/mesh`, {});
   }
 
   async runMatches(bundleId: string) {
-    return this.api.post(`/bundles/${bundleId}/matches`, {}, { timeout: 180000 });
+    return this.api.post(`/bundles/${bundleId}/matches`, {});
   }
 
   async runAll(bundleId: string) {
-    return this.api.post(`/bundles/${bundleId}/run-all`, {}, { timeout: 180000 });
+    return this.api.post(`/bundles/${bundleId}/run-all`, {});
   }
 
   async createBundle(itemIds: string[]) {
-    return this.api.post<BundleData>('/bundles', { itemIds }, { timeout: 180000 });
+    return this.api.post<BundleData>('/bundles', { itemIds });
   }
 
   async research(bundleId: string, imageId: string) {
-    return this.api.get<{ data: Array<{ itemId: string; distance: number }>; msgCode: string; code: number }>(`/bundles/${bundleId}/search/${imageId}`, { timeout: 180000 });
+    return this.api.get<{ data: Array<{ itemId: string; distance: number }>; msgCode: string; code: number }>(`/bundles/${bundleId}/search/${imageId}`);
   }
 }

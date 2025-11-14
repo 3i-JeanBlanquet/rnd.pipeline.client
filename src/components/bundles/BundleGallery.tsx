@@ -70,19 +70,32 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
   // Download a single file
   const downloadFile = async (url: string, filename: string) => {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to download ${filename}`);
+      // Set 10 minute timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 600000);
+      
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+          throw new Error(`Failed to download ${filename}`);
+        }
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error instanceof Error && error.name === 'AbortError') {
+          throw new Error(`Timeout downloading ${filename}`);
+        }
+        throw error;
       }
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       console.error(`Error downloading ${filename}:`, error);
       alert(`Failed to download ${filename}. Please check if the file exists.`);

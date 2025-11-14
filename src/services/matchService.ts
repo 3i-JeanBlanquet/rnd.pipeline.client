@@ -66,6 +66,6 @@ export class MatchService {
       body: requestBody
     });
     
-    return this.api.post<MatchData>(`/matches/${itemId}`, requestBody, { timeout: 60000 });
+    return this.api.post<MatchData>(`/matches/${itemId}`, requestBody);
   }
 }

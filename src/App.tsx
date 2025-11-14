@@ -15,13 +15,13 @@ import MatchListIcon from './components/icons/MatchListIcon';
 import BundleListIcon from './components/icons/BundleListIcon';
 
 const App: React.FC = () => {
-  const [images, setImages] = useState<ImageData[]>([]);
+  const [_images, setImages] = useState<ImageData[]>([]);
   const [matches, setMatches] = useState<MatchData[]>([]);
   const [bundles, setBundles] = useState<BundleData[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [matchesLoading, setMatchesLoading] = useState(false);
   const [bundlesLoading, setBundlesLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
   const [matchesError, setMatchesError] = useState<string | null>(null);
   const [bundlesError, setBundlesError] = useState<string | null>(null);
 
