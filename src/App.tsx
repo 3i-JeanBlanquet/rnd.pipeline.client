@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { imageService, matchService, bundleService, ApiError, ImageData, MatchData, BundleData } from './services';
+import { imageService, bundleService, ApiError, ImageData, BundleData } from './services';
 import { GetItemsRequest } from './models';
 import Expandable from './components/common/Expandable';
 import ImageCreate from './components/images/ImageCreate';
@@ -16,19 +16,15 @@ import BundleListIcon from './components/icons/BundleListIcon';
 
 const App: React.FC = () => {
   const [_images, setImages] = useState<ImageData[]>([]);
-  const [matches, setMatches] = useState<MatchData[]>([]);
   const [bundles, setBundles] = useState<BundleData[]>([]);
   const [_loading, setLoading] = useState(false);
-  const [matchesLoading, setMatchesLoading] = useState(false);
   const [bundlesLoading, setBundlesLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
-  const [matchesError, setMatchesError] = useState<string | null>(null);
   const [bundlesError, setBundlesError] = useState<string | null>(null);
 
-  // Fetch images, matches, and bundles on component mount
+  // Fetch images and bundles on component mount
   useEffect(() => {
     fetchImages();
-    fetchMatches();
     fetchBundles();
   }, []);
 
@@ -57,34 +53,6 @@ const App: React.FC = () => {
       setImages([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchMatches = async () => {
-    setMatchesLoading(true);
-    setMatchesError(null);
-    try {
-      const response = await matchService.getMatches();
-      console.log('Matches API Response:', response);
-      
-      // Handle different response structures
-      let matchesData = response.data;
-      if (Array.isArray(matchesData)) {
-        setMatches(matchesData);
-      } else if (matchesData && typeof matchesData === 'object' && 'items' in matchesData && Array.isArray((matchesData as any).items)) {
-        setMatches((matchesData as any).items);
-      } else if (matchesData && typeof matchesData === 'object' && 'data' in matchesData && Array.isArray((matchesData as any).data)) {
-        setMatches((matchesData as any).data);
-      } else {
-        console.warn('Unexpected matches response structure:', matchesData);
-        setMatches([]);
-      }
-    } catch (err) {
-      const apiError = err as ApiError;
-      setMatchesError(`Failed to fetch matches: ${apiError.message}`);
-      setMatches([]);
-    } finally {
-      setMatchesLoading(false);
     }
   };
 
@@ -174,22 +142,14 @@ const App: React.FC = () => {
             title="MATCH › ADD"
             icon={<MatchAddIcon />}
           >
-            <MatchCreate 
-              onCreateSuccess={fetchMatches}
-            />
+            <MatchCreate />
           </Expandable>
           
           <Expandable 
             title="MATCH › LIST" 
-            badge={matches.length}
             icon={<MatchListIcon />}
           >
-            <MatchGallery 
-              matches={matches}
-              loading={matchesLoading}
-              error={matchesError}
-              onRefresh={fetchMatches}
-            />
+            <MatchGallery />
           </Expandable>
           
           <Expandable 

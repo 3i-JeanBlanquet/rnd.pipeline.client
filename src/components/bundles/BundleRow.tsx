@@ -3,6 +3,7 @@ import { BundleData, bundleService } from '../../services';
 import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
 import BundleDetails from './BundleDetails';
 import BundleResearchModal from './BundleResearchModal';
+import BundleMatchesGallery from './BundleMatchesGallery';
 
 interface BundleRowProps {
   bundle: BundleData;
@@ -653,10 +654,19 @@ const BundleRow: React.FC<BundleRowProps> = ({
       
       {/* Expandable items section */}
       {isExpanded && (
-        <BundleDetails
-          bundle={bundle}
-          onImageClick={onImageClick}
-        />
+        <>
+          <BundleDetails
+            bundle={bundle}
+            onImageClick={onImageClick}
+          />
+          <BundleMatchesGallery
+            bundle={bundle}
+            onMatchClick={(match) => {
+              // Optional: handle match click if needed
+              console.log('Match clicked:', match);
+            }}
+          />
+        </>
       )}
 
       {/* Research Modal */}

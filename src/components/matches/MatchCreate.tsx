@@ -4,7 +4,7 @@ import { GetItemsRequest } from '../../models';
 import ImageFallback from '../images/ImageFallback';
 
 interface MatchCreateProps {
-  onCreateSuccess: () => void;
+  onCreateSuccess?: () => void;
 }
 
 const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
@@ -15,6 +15,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [filterItemIds, setFilterItemIds] = useState<string>('');
 
   // Fetch candidate images with featureStatus = PROCESSED
   const fetchCandidateImages = async () => {
@@ -64,12 +65,30 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
     fetchCandidateImages();
   }, []);
 
+  // Helper function to parse item IDs from input string
+  const parseItemIds = (idsString: string): string[] => {
+    if (!idsString || idsString.trim() === '') return [];
+    return idsString
+      .split(/[,\n]/)
+      .map(id => id.trim())
+      .filter(id => id.length > 0);
+  };
+
   // Filter images that have a parentId and completed feature status
   const imagesWithFeature = candidateImages.filter(img => 
   {
     return img.parentId && img.featureStatus === ProcessingStatus.PROCESSED;
   }
   );
+
+  // Apply item ID filter if provided
+  const filteredImages = React.useMemo(() => {
+    const itemIdsList = parseItemIds(filterItemIds);
+    if (itemIdsList.length === 0) {
+      return imagesWithFeature;
+    }
+    return imagesWithFeature.filter(img => itemIdsList.includes(img._id));
+  }, [imagesWithFeature, filterItemIds]);
 
   const handleImageError = (imageId: string, imageType: string) => {
     const errorKey = `${imageId}-${imageType}`;
@@ -117,7 +136,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
       console.log('Match created successfully');
       setSelectedImage0(null);
       setSelectedImage1(null);
-      onCreateSuccess();
+      onCreateSuccess?.();
     } catch (err) {
       console.error('Failed to create match:', err);
       const apiError = err as ApiError;
@@ -360,10 +379,43 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
               </div>
             </div>
 
+            {/* Filter Input */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#333' }}>
+                Filter by Item IDs (comma or newline separated)
+              </label>
+              <textarea
+                value={filterItemIds}
+                onChange={(e) => setFilterItemIds(e.target.value)}
+                placeholder="Enter item IDs separated by commas or newlines, e.g., id1, id2, id3"
+                style={{
+                  width: '100%',
+                  minHeight: '60px',
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontFamily: 'monospace',
+                  resize: 'vertical',
+                  boxSizing: 'border-box'
+                }}
+              />
+              {filterItemIds.trim() && (
+                <div style={{ marginTop: '8px', fontSize: '11px', color: '#666' }}>
+                  Showing {filteredImages.length} of {imagesWithFeature.length} images
+                  {filteredImages.length === 0 && filterItemIds.trim() && (
+                    <span style={{ color: '#dc3545', marginLeft: '8px' }}>
+                      (No matches found for the provided IDs)
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Image Selection Grid */}
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500', color: '#333' }}>
-                Available Feature Images ({imagesWithFeature.length})
+                Available Feature Images ({filteredImages.length})
               </label>
               <div style={{
                 display: 'grid',
@@ -376,7 +428,20 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
                 borderRadius: '8px',
                 border: '1px solid #dee2e6'
               }}>
-                {imagesWithFeature.map((image) => {
+                {filteredImages.length === 0 ? (
+                  <div style={{
+                    gridColumn: '1 / -1',
+                    textAlign: 'center',
+                    padding: '20px',
+                    color: '#666',
+                    fontSize: '14px'
+                  }}>
+                    {filterItemIds.trim() 
+                      ? 'No images match the provided item IDs'
+                      : 'No images available'}
+                  </div>
+                ) : (
+                  filteredImages.map((image) => {
                   const isSelected0 = selectedImage0?._id === image._id;
                   const isSelected1 = selectedImage1?._id === image._id;
                   const isSelected = isSelected0 || isSelected1;
@@ -464,7 +529,8 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
                       )}
                     </div>
                   );
-                })}
+                  })
+                )}
               </div>
             </div>
 

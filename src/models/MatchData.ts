@@ -19,3 +19,15 @@ export interface MatchDetails extends MatchData {
     valid_matches1_count: number;
   };
 }
+
+export interface MatchesListResponse {
+  items: MatchData[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}

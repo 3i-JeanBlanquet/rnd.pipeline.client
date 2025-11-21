@@ -3,6 +3,7 @@ import { ImageData, imageService } from '../services';
 import { ProcessingStatus } from '../models/ProcessingStatus';
 import { GetItemsRequest } from '../models';
 import { ItemStorage } from '../common/item.storage';
+import { config } from '../config/env';
 
 /**
  * Downloads all image files as a ZIP archive
@@ -91,13 +92,45 @@ const createImageFileList = (
     });
   }
 
-  // Include feature image if processed
+  // Include feature image and feature files if processed
   if (image.featureStatus === ProcessingStatus.PROCESSED) {
     const featureUrl = imageService.getFeatureUrl(image);
     files.push({
       url: featureUrl,
       path: itemStorage.getFeatureFile(),
       name: 'features.png'
+    });
+
+    // Add feature descriptor file
+    const featureDescriptorPath = itemStorage.getFeatureDescriptorFile();
+    files.push({
+      url: `${config.s3BucketUrl}/${featureDescriptorPath}`,
+      path: featureDescriptorPath,
+      name: 'descriptors.npy'
+    });
+
+    // Add feature keypoints file
+    const featureKeyPath = itemStorage.getFeatureKeyFile();
+    files.push({
+      url: `${config.s3BucketUrl}/${featureKeyPath}`,
+      path: featureKeyPath,
+      name: 'keypoints.npy'
+    });
+
+    // Add feature image tensor file
+    const featureImgPath = itemStorage.getFeatureImgFile();
+    files.push({
+      url: `${config.s3BucketUrl}/${featureImgPath}`,
+      path: featureImgPath,
+      name: 'image_tensor.npy'
+    });
+
+    // Add feature scores file
+    const featureScorePath = itemStorage.getFeatureScoreFile();
+    files.push({
+      url: `${config.s3BucketUrl}/${featureScorePath}`,
+      path: featureScorePath,
+      name: 'scores.npy'
     });
   }
 

@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
-import { matchService, MatchData } from '../../services';
+import React, { useState, useEffect } from 'react';
+import { matchService, MatchData, ApiError } from '../../services';
+import { GetMatchesRequest, MatchFilterRequest } from '../../models';
+import MatchSearchFilterPanel from '../common/MatchSearchFilterPanel';
 
 interface MatchGalleryProps {
-  matches: MatchData[];
-  loading: boolean;
-  error: string | null;
-  onRefresh: () => void;
   onDeleteMatch?: (id: string) => void;
 }
 
 const MatchGallery: React.FC<MatchGalleryProps> = ({ 
-  matches, 
-  loading, 
-  error, 
-  onRefresh,
   onDeleteMatch
 }) => {
+  const [matches, setMatches] = useState<MatchData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedMatch, setSelectedMatch] = useState<MatchData | null>(null);
+  
+  // Filter and sort state
+  const [matchIds, setMatchIds] = useState<string>('');
+  const [itemId0, setItemId0] = useState<string>('');
+  const [itemId1, setItemId1] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt' | '_id' | 'itemId0' | 'itemId1'>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
   const handleMatchClick = (match: MatchData) => {
     setSelectedMatch(match);
@@ -36,27 +42,149 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
     });
   };
 
+  // Helper function to parse IDs string into array
+  const parseIdsString = (idsString: string): string[] => {
+    if (!idsString || idsString.trim() === '') return [];
+    return idsString
+      .split(/[,\n]/)
+      .map(id => id.trim())
+      .filter(id => id.length > 0);
+  };
+
+  // Fetch matches with filters
+  const fetchMatches = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Parse matchIds
+      const matchIdsList = parseIdsString(matchIds);
+      
+      // Build filter object
+      const filter: MatchFilterRequest = {};
+      if (matchIdsList.length > 0) {
+        filter.ids = matchIdsList;
+      }
+      if (itemId0) {
+        filter.itemId0 = itemId0.trim();
+      }
+      if (itemId1) {
+        filter.itemId1 = itemId1.trim();
+      }
+      
+      const request: GetMatchesRequest = {
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+        filter: Object.keys(filter).length > 0 ? filter : undefined
+      };
+      
+      const response = await matchService.getMatches(limit, request);
+      console.log('Matches API Response:', response);
+      
+      // Handle different response structures
+      let matchesData = response.data;
+      let matchesList: MatchData[] = [];
+      
+      if (Array.isArray(matchesData)) {
+        matchesList = matchesData;
+      } else if (matchesData && typeof matchesData === 'object' && 'items' in matchesData && Array.isArray((matchesData as any).items)) {
+        matchesList = (matchesData as any).items;
+      } else if (matchesData && typeof matchesData === 'object' && 'data' in matchesData && Array.isArray((matchesData as any).data)) {
+        matchesList = (matchesData as any).data;
+      } else {
+        console.warn('Unexpected response structure:', matchesData);
+        matchesList = [];
+      }
+      
+      setMatches(matchesList);
+    } catch (err) {
+      console.error('Failed to fetch matches:', err);
+      const apiError = err as ApiError;
+      setError(`Failed to fetch matches: ${apiError.message}`);
+      setMatches([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch matches on mount and when filters/sort change
+  useEffect(() => {
+    fetchMatches();
+  }, [page, limit, sortBy, sortOrder]);
+
+  // Handle limit change
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
+  };
+
   return (
     <>
       <div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px' }}>
-          <button
-            onClick={onRefresh}
-            disabled={loading}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              fontSize: '12px'
-            }}
-          >
-            {loading ? 'Loading...' : 'Refresh'}
-          </button>
-        </div>
+        {/* Search and Filter Panel */}
+        <MatchSearchFilterPanel
+          matchIds={matchIds}
+          onMatchIdsChange={(value) => { setMatchIds(value); setPage(1); }}
+          itemId0={itemId0}
+          onItemId0Change={(value) => { setItemId0(value); setPage(1); }}
+          itemId1={itemId1}
+          onItemId1Change={(value) => { setItemId1(value); setPage(1); }}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
+          page={page}
+          limit={limit}
+          onLimitChange={handleLimitChange}
+          loading={loading}
+          itemCount={matches.length}
+          onApplyFilters={() => { setPage(1); fetchMatches(); }}
+        />
+
+        {/* Pagination Controls */}
+        {!loading && matches.length > 0 && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            alignItems: 'center',
+            marginBottom: '20px',
+            gap: '10px'
+          }}>
+            <button
+              onClick={() => setPage(prev => Math.max(1, prev - 1))}
+              disabled={page === 1 || loading}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: page === 1 ? '#6c757d' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: page === 1 ? 'not-allowed' : 'pointer',
+                fontSize: '12px',
+                opacity: page === 1 ? 0.6 : 1
+              }}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage(prev => prev + 1)}
+              disabled={matches.length < limit || loading}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: matches.length < limit ? '#6c757d' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: matches.length < limit ? 'not-allowed' : 'pointer',
+                fontSize: '12px',
+                opacity: matches.length < limit ? 0.6 : 1
+              }}
+            >
+              Next
+            </button>
+          </div>
+        )}
 
         {error && (
           <div style={{
@@ -90,9 +218,9 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
               <thead>
                 <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #e9ecef' }}>
                   <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Match Image</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Match ID</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Item ID 0</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Item ID 1</th>
-                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Status</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Created</th>
                   {onDeleteMatch && (
                     <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Actions</th>
@@ -128,23 +256,14 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
                         }}
                       />
                     </td>
+                    <td style={{ padding: '4px', fontSize: '12px', color: '#333', fontFamily: 'monospace' }}>
+                      {match._id}
+                    </td>
                     <td style={{ padding: '4px', fontSize: '12px', color: '#333' }}>
                       {match.itemId0}
                     </td>
                     <td style={{ padding: '4px', fontSize: '12px', color: '#333' }}>
                       {match.itemId1}
-                    </td>
-                    <td style={{ padding: '4px', fontSize: '12px', color: '#333' }}>
-                      <span style={{
-                        padding: '2px 6px',
-                        borderRadius: '3px',
-                        fontSize: '10px',
-                        fontWeight: '500',
-                        backgroundColor: match.status === 'completed' ? '#d4edda' : '#fff3cd',
-                        color: match.status === 'completed' ? '#155724' : '#856404'
-                      }}>
-                        {match.status}
-                      </span>
                     </td>
                     <td style={{ padding: '4px', fontSize: '12px', color: '#666' }}>
                       {formatDate(match.createdAt)}
@@ -253,7 +372,7 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
                 <strong>Item ID 0:</strong> {selectedMatch.itemId0}
               </p>
               <p style={{ margin: '5px 0', fontSize: '12px', color: '#666' }}>
-                <strong>Item ID 1:</strong> {selectedMatch.itemId0}
+                <strong>Item ID 1:</strong> {selectedMatch.itemId1}
               </p>
               <p style={{ margin: '5px 0', fontSize: '12px', color: '#666' }}>
                 <strong>Status:</strong> {selectedMatch.status}

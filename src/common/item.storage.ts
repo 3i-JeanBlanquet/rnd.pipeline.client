@@ -13,6 +13,38 @@ export class ItemStorage{
     }
   }
 
+  public getFeatureScoreFile():string{
+    if(this._parentId){
+      return `items/${this._parentId}/children/${this._id}/features/scores.npy`;
+    }else{
+      return `items/${this._id}/features/scores.npy`;
+    }
+  }
+
+  public getFeatureImgFile():string{
+    if(this._parentId){
+      return `items/${this._parentId}/children/${this._id}/features/image_tensor.npy`;
+    }else{
+      return `items/${this._id}/features/image_tensor.npy`;
+    }
+  }
+
+  public getFeatureKeyFile():string{
+    if(this._parentId){
+      return `items/${this._parentId}/children/${this._id}/features/keypoints.npy`;
+    }else{
+      return `items/${this._id}/features/keypoints.npy`;
+    }
+  }
+
+  public getFeatureDescriptorFile():string{
+    if(this._parentId){
+      return `items/${this._parentId}/children/${this._id}/features/descriptors.npy`;
+    }else{
+      return `items/${this._id}/features/descriptors.npy`;
+    }
+  }
+
   public getDepthFile():string{
     if(this._parentId){
       return `items/${this._parentId}/children/${this._id}/depth.png`;
