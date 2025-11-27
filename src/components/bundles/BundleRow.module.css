@@ -1,0 +1,261 @@
+.bundleRow {
+  background-color: var(--bg-white);
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.bundleCard {
+  background-color: var(--bg-light);
+  border-bottom: 1px solid var(--border-light);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bundleCardExpanded {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.topSection {
+  padding: 14px var(--spacing-lg);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background-color var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+  gap: var(--spacing-lg);
+}
+
+.topSection:hover {
+  background-color: var(--bg-hover);
+}
+
+.leftContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.expandIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-normal);
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.expandIconExpanded {
+  transform: rotate(90deg);
+}
+
+.bundleInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.bundleId {
+  margin: 0 0 6px 0;
+  font-size: var(--font-lg);
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.bundleMeta {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.statusBadges {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.statusBadge {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rightActions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.actionsMenu {
+  position: relative;
+}
+
+.actionsButton {
+  padding: 6px 10px;
+  background-color: var(--color-secondary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.actionsDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-index-dropdown);
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.menuItem {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: transparent;
+  color: var(--text-dark);
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  font-size: var(--font-md);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.menuItem:hover {
+  background-color: var(--bg-light);
+}
+
+.menuItemLast {
+  border-bottom: none;
+}
+
+.menuItemInfo {
+  color: var(--color-info);
+}
+
+.menuItemPrimary {
+  color: var(--color-primary);
+}
+
+.menuItemSuccess {
+  color: var(--color-success);
+}
+
+.menuItemDanger {
+  color: var(--color-danger);
+}
+
+.menuItemDanger:hover {
+  background-color: #fff5f5;
+}
+
+.menuItemDisabled {
+  color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.menuItemDisabled:hover {
+  background-color: transparent;
+}
+
+.processingSection {
+  border-top: 1px solid var(--border-light);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.toggleButton {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: background-color var(--transition-fast);
+}
+
+.toggleButton:hover {
+  background-color: var(--bg-light);
+}
+
+.toggleArrow {
+  transform: rotate(0deg);
+  transition: transform var(--transition-fast);
+  display: inline-block;
+}
+
+.toggleArrowExpanded {
+  transform: rotate(180deg);
+}
+
+.processingButtons {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 6px 10px;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.actionButtonSuccess {
+  background-color: var(--color-success);
+}
+
+.actionButtonPrimary {
+  background-color: var(--color-primary);
+  font-weight: 600;
+}
+
+.actionButtonDisabled {
+  background-color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+

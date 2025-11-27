@@ -1,0 +1,241 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  cursor: pointer;
+}
+
+.modalContent {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  width: 800px;
+  background-color: var(--bg-white);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  cursor: default;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalTitle {
+  margin: 0 0 10px 0;
+  font-size: var(--font-xl);
+  color: var(--text-primary);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: var(--font-base);
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.filterInput {
+  padding: 6px 10px;
+  font-size: var(--font-md);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-md);
+  width: 200px;
+  outline: none;
+}
+
+.loadingMessage {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.emptyMessage {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.filterInfo {
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-md);
+  color: var(--text-muted);
+}
+
+.imagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-medium);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.imageCard {
+  padding: var(--spacing-sm);
+  background-color: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-dark);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.imageCard:hover:not(.imageCardSelected) {
+  border-color: var(--color-primary);
+  background-color: #f0f8ff;
+}
+
+.imageCardSelected {
+  background-color: #e7f3ff;
+  border: 2px solid var(--color-primary);
+}
+
+.imageCardImage {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dark);
+}
+
+.imageCardLabel {
+  font-size: 10px;
+  color: var(--text-dark);
+  text-align: center;
+  word-break: break-all;
+  font-weight: 400;
+}
+
+.imageCardLabelSelected {
+  font-weight: 600;
+}
+
+.imageCardParent {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.processButton {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.processButton button {
+  padding: 10px var(--spacing-xl);
+  background-color: var(--color-success);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-base);
+  font-weight: 600;
+  transition: opacity var(--transition-fast);
+}
+
+.processButton button:disabled {
+  background-color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.resultsSection {
+  margin-top: var(--spacing-xl);
+}
+
+.resultsTitle {
+  margin: 0 0 10px 0;
+  font-size: var(--font-base);
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-medium);
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.resultCard {
+  padding: var(--spacing-sm);
+  background-color: var(--bg-white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: transform var(--transition-fast);
+  cursor: pointer;
+}
+
+.resultCard:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
+}
+
+.resultImage {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dark);
+}
+
+.resultLabel {
+  font-size: 10px;
+  color: var(--text-dark);
+  text-align: center;
+  word-break: break-all;
+  font-weight: 400;
+}
+
+.resultParent {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+

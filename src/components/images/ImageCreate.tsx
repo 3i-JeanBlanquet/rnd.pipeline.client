@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { imageService, ApiError } from '../../services';
+import styles from './ImageCreate.module.css';
 
 interface ImageCreateProps {
   onUploadSuccess: () => void;
@@ -90,101 +91,60 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
   return (
     <div>
       {error && (
-        <div style={{
-          backgroundColor: '#fee',
-          color: '#c33',
-          padding: '12px',
-          borderRadius: '4px',
-          marginBottom: '20px',
-          border: '1px solid #fcc'
-        }}>
+        <div className={styles.errorMessage}>
           <strong>Error:</strong> {error}
         </div>
       )}
 
-      <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <form onSubmit={handleUpload} className={styles.form}>
         <div>
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileSelect}
-            style={{
-              padding: '8px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              width: '100%'
-            }}
+            className={styles.fileInput}
           />
-          <p style={{ fontSize: '12px', color: '#666', margin: '5px 0 0 0' }}>
+          <p className={styles.fileHint}>
             Supported formats: JPG, PNG, GIF, WebP (Max size: 10MB)
           </p>
         </div>
         
         {previewUrl && (
-          <div style={{ textAlign: 'center' }}>
+          <div className={styles.previewContainer}>
             <img
               src={previewUrl}
               alt="Preview"
-              style={{
-                maxWidth: '200px',
-                maxHeight: '200px',
-                borderRadius: '4px',
-                border: '1px solid #ddd'
-              }}
+              className={styles.previewImage}
             />
-            <p style={{ fontSize: '12px', color: '#666', margin: '5px 0 0 0' }}>
+            <p className={styles.previewInfo}>
               {selectedFile?.name} ({formatFileSize(selectedFile?.size || 0)})
             </p>
           </div>
         )}
         
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                type="text"
-                placeholder="Item ID (required)"
-                value={itemId}
-                onChange={(e) => setItemId(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  flex: 1
-                }}
-              />
-              <button
-                type="button"
-                onClick={generateUUID}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  whiteSpace: 'nowrap'
-                }}
-                title="Generate a new UUID"
-              >
-                Generate UUID
-              </button>
-            </div>
+        <div className={styles.inputGroup}>
+          <input
+            type="text"
+            placeholder="Item ID (required)"
+            value={itemId}
+            onChange={(e) => setItemId(e.target.value)}
+            className={styles.textInput}
+          />
+          <button
+            type="button"
+            onClick={generateUUID}
+            className={styles.generateButton}
+            title="Generate a new UUID"
+          >
+            Generate UUID
+          </button>
+        </div>
         
         <button
           type="submit"
           disabled={uploading || !selectedFile || !itemId}
-          style={{
-            padding: '10px 16px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: uploading || !selectedFile || !itemId ? 'not-allowed' : 'pointer',
-            opacity: uploading || !selectedFile || !itemId ? 0.6 : 1,
-            fontSize: '16px'
-          }}
+          className={styles.submitButton}
         >
           {uploading ? 'Uploading...' : 'Upload Image'}
         </button>

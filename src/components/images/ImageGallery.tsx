@@ -4,6 +4,7 @@ import { GetItemsRequest, ItemFilterRequest } from '../../models';
 import ImageRow from './ImageRow';
 import ImageModal from './ImageModal';
 import SearchFilterPanel from '../common/SearchFilterPanel';
+import styles from './ImageGallery.module.css';
 
 interface ImageGalleryProps {
   // Component is now self-contained and manages its own data
@@ -162,42 +163,18 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
 
         {/* Pagination Controls */}
         {!loading && images.length > 0 && (
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'flex-end', 
-            alignItems: 'center',
-            marginBottom: '20px',
-            gap: '10px'
-          }}>
+          <div className={styles.pagination}>
             <button
               onClick={() => setPage(prev => Math.max(1, prev - 1))}
               disabled={page === 1 || loading}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: page === 1 ? '#6c757d' : '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: page === 1 ? 'not-allowed' : 'pointer',
-                fontSize: '12px',
-                opacity: page === 1 ? 0.6 : 1
-              }}
+              className={styles.paginationButton}
             >
               Previous
             </button>
             <button
               onClick={() => setPage(prev => prev + 1)}
               disabled={images.length < limit || loading}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: images.length < limit ? '#6c757d' : '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: images.length < limit ? 'not-allowed' : 'pointer',
-                fontSize: '12px',
-                opacity: images.length < limit ? 0.6 : 1
-              }}
+              className={styles.paginationButton}
             >
               Next
             </button>
@@ -205,33 +182,21 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
         )}
 
         {error && (
-          <div style={{
-            backgroundColor: '#fee',
-            color: '#c33',
-            padding: '12px',
-            borderRadius: '4px',
-            marginBottom: '20px',
-            border: '1px solid #fcc'
-          }}>
+          <div className={styles.errorMessage}>
             <strong>Error:</strong> {error}
           </div>
         )}
 
         {loading && (!Array.isArray(images) || images.length === 0) ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+          <div className={styles.loadingMessage}>
             Loading images...
           </div>
         ) : !Array.isArray(images) || images.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+          <div className={styles.emptyMessage}>
             No images found. Upload your first image above!
           </div>
         ) : (
-          <div style={{ 
-            backgroundColor: '#fff',
-            border: '1px solid #e9ecef',
-            borderRadius: '8px',
-            overflow: 'hidden'
-          }}>
+          <div className={styles.imageList}>
             {images.map((image) => (
               <ImageRow
                 key={image._id}

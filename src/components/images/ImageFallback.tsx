@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './ImageFallback.module.css';
 
 interface ImageFallbackProps {
   imageType: string;
@@ -6,20 +7,7 @@ interface ImageFallbackProps {
 }
 
 const ImageFallback: React.FC<ImageFallbackProps> = ({ imageType, size = '60px' }) => (
-  <div style={{
-    width: size,
-    height: size,
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #dee2e6',
-    borderRadius: '4px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '10px',
-    color: '#6c757d',
-    textAlign: 'center',
-    padding: '4px'
-  }}>
+  <div className={styles.fallback} style={{ width: size, height: size }}>
     {imageType}<br/>Not Available
   </div>
 );

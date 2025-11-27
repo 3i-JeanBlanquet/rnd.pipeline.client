@@ -1,4 +1,5 @@
 import React, { useState, ReactNode } from 'react';
+import styles from './Expandable.module.css';
 
 interface ExpandableProps {
   title: string;
@@ -22,105 +23,43 @@ const Expandable: React.FC<ExpandableProps> = ({
   };
 
   return (
-    <div style={{
-      backgroundColor: '#fff',
-      width: '100%',
-      boxSizing: 'border-box',
-      margin: 0,
-      padding: 0
-    }}>
+    <div className={styles.expandable}>
       <div
         onClick={toggleExpanded}
-        style={{
-          backgroundColor: '#f8f9fa',
-          padding: '15px 20px',
-          borderBottom: '1px solid #e9ecef',
-          cursor: 'pointer',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          transition: 'background-color 0.2s ease',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#e9ecef';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#f8f9fa';
-        }}
+        className={styles.header}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className={styles.headerContent}>
           {icon && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '24px',
-              height: '24px',
-              flexShrink: 0
-            }}>
+            <div className={styles.iconContainer}>
               {icon}
             </div>
           )}
-          <h2 style={{ 
-            margin: '0', 
-            color: '#333',
-            fontSize: '18px',
-            fontWeight: '600',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
+          <h2 className={styles.title}>
             {title.split('› ').map((part, index) => (
               <span key={index}>
                 {index > 0 && (
-                  <span style={{ 
-                    color: '#999', 
-                    fontWeight: '400',
-                    margin: '0 4px'
-                  }}>›</span>
+                  <span className={styles.titleSeparator}>›</span>
                 )}
-                <span style={{ 
-                  color: index === 0 ? '#666' : '#333',
-                  fontWeight: index === 0 ? '500' : '600'
-                }}>
+                <span className={index === 0 ? styles.titlePart : styles.titlePartActive}>
                   {part}
                 </span>
               </span>
             ))}
           </h2>
           {badge && (
-            <span style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: '500'
-            }}>
+            <span className={styles.badge}>
               {badge}
             </span>
           )}
         </div>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'transform 0.3s ease',
-          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-          width: '24px',
-          height: '24px'
-        }}>
+        <div className={`${styles.arrow} ${isExpanded ? styles.arrowExpanded : ''}`}>
           <svg
             width="12"
             height="8"
             viewBox="0 0 12 8"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            style={{
-              transition: 'all 0.3s ease'
-            }}
+            className={styles.arrowSvg}
           >
             <path
               d="M1 1.5L6 6.5L11 1.5"
@@ -134,11 +73,7 @@ const Expandable: React.FC<ExpandableProps> = ({
       </div>
       
       {isExpanded && (
-        <div style={{ 
-          padding: '20px',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}>
+        <div className={styles.content}>
           {children}
         </div>
       )}

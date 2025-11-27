@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ImageData, ApiError, matchService, imageService, ProcessingStatus } from '../../services';
 import { GetItemsRequest } from '../../models';
 import ImageFallback from '../images/ImageFallback';
+import styles from './MatchCreate.module.css';
 
 interface MatchCreateProps {
   onCreateSuccess?: () => void;

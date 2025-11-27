@@ -1,0 +1,13 @@
+.fallback {
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--spacing-xs);
+}
+

@@ -1,0 +1,178 @@
+.errorMessage {
+  background-color: #fee;
+  color: #c33;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid #fcc;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.matchList {
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableHeader {
+  background-color: var(--bg-light);
+  border-bottom: 2px solid var(--border-light);
+}
+
+.tableHeaderCell {
+  padding: var(--spacing-lg);
+  text-align: left;
+  font-size: var(--font-base);
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.tableRow {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.tableCell {
+  padding: var(--spacing-xs);
+  font-size: var(--font-md);
+  color: var(--text-primary);
+}
+
+.tableCellMonospace {
+  font-family: monospace;
+}
+
+.tableCellMuted {
+  color: var(--text-secondary);
+}
+
+.matchImage {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dark);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.matchImage:hover {
+  transform: scale(1.05);
+}
+
+.deleteButton {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--font-sm);
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  gap: 10px;
+}
+
+.paginationButton {
+  padding: 6px var(--spacing-md);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-md);
+  transition: opacity var(--transition-fast);
+}
+
+.paginationButton:disabled {
+  background-color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-index-modal);
+  cursor: pointer;
+}
+
+.modalContent {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  background-color: var(--bg-white);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  cursor: default;
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalImage {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  display: block;
+}
+
+.modalInfo {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.modalInfoText {
+  margin: 5px 0;
+  font-size: var(--font-base);
+  color: var(--text-primary);
+}
+
+.modalInfoTextSmall {
+  margin: 5px 0;
+  font-size: var(--font-md);
+  color: var(--text-secondary);
+}
+

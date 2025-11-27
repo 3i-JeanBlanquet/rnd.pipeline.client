@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './SearchFilterPanel.module.css';
 
 interface SearchFilterPanelProps {
   itemIds?: string;
@@ -36,43 +37,20 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
   const [showFilters, setShowFilters] = React.useState(false);
 
   return (
-    <div style={{ 
-      marginBottom: '20px', 
-      backgroundColor: '#f8f9fa', 
-      padding: '15px', 
-      borderRadius: '8px',
-      border: '1px solid #dee2e6'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h4 style={{ margin: 0, color: '#333' }}>Search & Filter</h4>
-        <div style={{ display: 'flex', gap: '10px' }}>
+    <div className={styles.panel}>
+      <div className={styles.header}>
+        <h4 className={styles.title}>Search & Filter</h4>
+        <div className={styles.buttonGroup}>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '12px'
-            }}
+            className={styles.button}
           >
             {showFilters ? '▼ Hide Filters' : '▶ Show Filters'}
           </button>
           <button
             onClick={onApplyFilters}
             disabled={loading}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              fontSize: '12px'
-            }}
+            className={`${styles.button} ${styles.buttonSuccess}`}
           >
             {loading ? 'Loading...' : '↻ Apply & Refresh'}
           </button>
@@ -80,72 +58,42 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
       </div>
 
       {showFilters && (
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '15px',
-          paddingTop: '15px',
-          borderTop: '1px solid #dee2e6'
-        }}>
+        <div className={styles.filtersContainer}>
           {/* Item IDs Filter */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '500', color: '#333' }}>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>
               Item IDs (comma or newline separated)
             </label>
             <textarea
               value={itemIds || ''}
               onChange={(e) => onItemIdsChange(e.target.value)}
               placeholder="Enter item IDs, one per line or comma separated"
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '12px',
-                minHeight: '80px',
-                resize: 'vertical',
-                fontFamily: 'monospace'
-              }}
+              className={styles.textarea}
             />
           </div>
 
           {/* Parent IDs Filter */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '500', color: '#333' }}>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>
               Parent IDs (comma or newline separated)
             </label>
             <textarea
               value={parentIds || ''}
               onChange={(e) => onParentIdsChange(e.target.value)}
               placeholder="Enter parent IDs, one per line or comma separated"
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '12px',
-                minHeight: '80px',
-                resize: 'vertical',
-                fontFamily: 'monospace'
-              }}
+              className={styles.textarea}
             />
           </div>
 
           {/* Sort By */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '500', color: '#333' }}>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>
               Sort By
             </label>
             <select
               value={sortBy}
               onChange={(e) => onSortByChange(e.target.value as any)}
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '12px'
-              }}
+              className={styles.select}
             >
               <option value="createdAt">Created At</option>
               <option value="updatedAt">Updated At</option>
@@ -158,20 +106,14 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
           </div>
 
           {/* Sort Order */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '500', color: '#333' }}>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>
               Sort Order
             </label>
             <select
               value={sortOrder}
               onChange={(e) => onSortOrderChange(e.target.value as 'asc' | 'desc')}
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '12px'
-              }}
+              className={styles.select}
             >
               <option value="asc">Ascending</option>
               <option value="desc">Descending</option>
@@ -179,20 +121,14 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
           </div>
 
           {/* Limit */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px', fontWeight: '500', color: '#333' }}>
+          <div className={styles.filterGroup}>
+            <label className={styles.label}>
               Items Per Page
             </label>
             <select
               value={limit}
               onChange={(e) => onLimitChange(Number(e.target.value))}
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-                fontSize: '12px'
-              }}
+              className={styles.select}
             >
               <option value="10">10</option>
               <option value="20">20</option>
@@ -205,15 +141,8 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
 
       {/* Pagination */}
       {!loading && itemCount > 0 && (
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginTop: '15px',
-          paddingTop: '15px',
-          borderTop: '1px solid #dee2e6'
-        }}>
-          <div style={{ fontSize: '12px', color: '#666' }}>
+        <div className={styles.pagination}>
+          <div className={styles.paginationInfo}>
             Showing {itemCount} items (Page {page})
           </div>
         </div>

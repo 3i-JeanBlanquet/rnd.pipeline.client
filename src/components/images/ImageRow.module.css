@@ -1,0 +1,220 @@
+.imageRow {
+  background-color: var(--bg-white);
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.imageCard {
+  background-color: var(--bg-light);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.topSection {
+  padding: 14px var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background-color var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+  gap: var(--spacing-lg);
+}
+
+.topSection:hover {
+  background-color: var(--bg-hover);
+}
+
+.leftContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.thumbnailGroup {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dark);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.thumbnailPlaceholder {
+  width: 60px;
+  height: 60px;
+  background-color: #f0f0f0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 10px;
+  text-align: center;
+  padding: var(--spacing-xs);
+}
+
+.imageInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.imageId {
+  margin: 0 0 6px 0;
+  font-size: var(--font-lg);
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.imageMeta {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.statusBadges {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.statusBadge {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 6px 10px;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.actionButtonSuccess {
+  background-color: var(--color-success);
+}
+
+.actionButtonInfo {
+  background-color: var(--color-info);
+}
+
+.actionButtonPrimary {
+  background-color: var(--color-primary);
+}
+
+.actionButtonDisabled {
+  background-color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.actionsMenu {
+  position: relative;
+}
+
+.actionsButton {
+  padding: 6px 10px;
+  background-color: var(--color-secondary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.actionsDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-index-dropdown);
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.menuItem {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: transparent;
+  color: var(--text-dark);
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  font-size: var(--font-md);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.menuItem:hover {
+  background-color: var(--bg-light);
+}
+
+.menuItemLast {
+  border-bottom: none;
+}
+
+.menuItemPrimary {
+  color: var(--color-primary);
+}
+
+.menuItemDisabled {
+  color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.menuItemDisabled:hover {
+  background-color: transparent;
+}
+
