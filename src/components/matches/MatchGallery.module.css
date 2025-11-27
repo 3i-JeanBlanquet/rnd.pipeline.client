@@ -1,3 +1,9 @@
+.container {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+}
+
 .errorMessage {
   background-color: #fee;
   color: #c33;

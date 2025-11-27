@@ -142,7 +142,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
 
   return (
     <>
-      <div>
+      <div className={styles.container}>
         {/* Search and Filter Panel */}
         <SearchFilterPanel
           itemIds={itemIds}

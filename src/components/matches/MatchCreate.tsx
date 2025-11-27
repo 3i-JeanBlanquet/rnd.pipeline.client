@@ -157,7 +157,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className={styles.container}>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>

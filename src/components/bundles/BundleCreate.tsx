@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ImageData, ApiError, imageService, bundleService } from '../../services';
 import { GetItemsRequest } from '../../models';
 import ImageFallback from '../images/ImageFallback';
+import styles from './BundleCreate.module.css';
 
 interface BundleCreateProps {
   onCreateSuccess: () => void;
@@ -158,7 +159,7 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
   const uniqueParentIds = Object.keys(groupedByParent);
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className={styles.container}>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>

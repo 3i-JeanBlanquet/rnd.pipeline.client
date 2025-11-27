@@ -12,8 +12,8 @@ import Notification from './components/common/Notification';
 import logoImage from './assets/3i.png';
 import ItemListIcon from './components/icons/ItemListIcon';
 import MatchAddIcon from './components/icons/MatchAddIcon';
-import MatchListIcon from './components/icons/MatchListIcon';
 import BundleListIcon from './components/icons/BundleListIcon';
+import styles from './App.module.css';
 
 const App: React.FC = () => {
   const [_images, setImages] = useState<ImageData[]>([]);
@@ -96,12 +96,13 @@ const App: React.FC = () => {
     <div style={{ 
       minHeight: '100vh',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      backgroundColor: 'rgb(243,243,243)'
     }}>
       <header style={{ 
         textAlign: 'center', 
         padding: '20px',
-        backgroundColor: 'rgb(0,89,255)',
+        backgroundColor: 'rgb(243,243,243)',
         width: '100%',
         boxSizing: 'border-box',
         margin: 0,
@@ -112,10 +113,7 @@ const App: React.FC = () => {
         <img 
           src={logoImage} 
           alt="3i Logo" 
-          style={{
-            height: '40px',
-            width: 'auto'
-          }}
+          className={styles.logo}
         />
       </header>
 
@@ -124,7 +122,7 @@ const App: React.FC = () => {
         boxSizing: 'border-box',
         flex: 1,
         margin: 0,
-        padding: 0
+        padding: '8px'
       }}>
         <div style={{ 
           display: 'flex', 
@@ -132,55 +130,73 @@ const App: React.FC = () => {
           gap: 0,
           width: '100%'
         }}>
+          {/* ITEM Section */}
           <Expandable 
-            title="ITEM › ADD"
-            icon={<ItemListIcon />}
+            title="ITEM"
+            icon={<BundleListIcon color="#333" />}
           >
-            <ImageCreate onUploadSuccess={fetchImages} />
+            <Expandable 
+              title="NEW"
+              icon={<MatchAddIcon color="#333" />}
+            >
+              <ImageCreate onUploadSuccess={fetchImages} />
+            </Expandable>
+            
+            <Expandable 
+              title="LIST"
+              icon={<ItemListIcon color="#333" />}
+            >
+              <ImageGallery />
+            </Expandable>
           </Expandable>
           
+          {/* MATCH Section */}
           <Expandable 
-            title="ITEM › LIST"
-            icon={<ItemListIcon />}
+            title="MATCH"
+            icon={<BundleListIcon color="#333" />}
           >
-            <ImageGallery />
+            <Expandable 
+              title="NEW"
+              icon={<MatchAddIcon color="#333" />}
+            >
+              <MatchCreate />
+            </Expandable>
+            
+            <Expandable 
+              title="LIST" 
+              icon={<ItemListIcon color="#333" />}
+            >
+              <MatchGallery />
+            </Expandable>
           </Expandable>
           
+          {/* BUNDLE Section */}
           <Expandable 
-            title="MATCH › ADD"
-            icon={<MatchAddIcon />}
-          >
-            <MatchCreate />
-          </Expandable>
-          
-          <Expandable 
-            title="MATCH › LIST" 
-            icon={<MatchListIcon />}
-          >
-            <MatchGallery />
-          </Expandable>
-          
-          <Expandable 
-            title="BUNDLE › ADD"
-            icon={<BundleListIcon />}
-          >
-            <BundleCreate 
-              onCreateSuccess={fetchBundles}
-            />
-          </Expandable>
-          
-          <Expandable 
-            title="BUNDLE › LIST" 
+            title="BUNDLE"
             badge={bundles.length}
-            icon={<BundleListIcon />}
+            icon={<BundleListIcon color="#333" />}
           >
-            <BundleGallery 
-              bundles={bundles}
-              loading={bundlesLoading}
-              error={bundlesError}
-              onRefresh={fetchBundles}
-              onShowProcessingNotification={showProcessingNotification}
-            />
+            <Expandable 
+              title="NEW"
+              icon={<MatchAddIcon color="#333" />}
+            >
+              <BundleCreate 
+                onCreateSuccess={fetchBundles}
+              />
+            </Expandable>
+            
+            <Expandable 
+              title="LIST" 
+              icon={<ItemListIcon color="#333" />}
+            >
+              <BundleGallery 
+                bundles={bundles}
+                loading={bundlesLoading}
+                error={bundlesError}
+                onRefresh={fetchBundles}
+                onShowProcessingNotification={showProcessingNotification}
+              />
+            </Expandable>
           </Expandable>
         </div>
       </div>
@@ -195,10 +211,10 @@ const App: React.FC = () => {
       <footer style={{
         textAlign: 'center',
         padding: '20px',
-        backgroundColor: 'rgb(0,89,255)',
+        backgroundColor: 'rgb(243,243,243)',
         width: '100%',
         boxSizing: 'border-box',
-        color: '#fff',
+        color: '#333',
         marginTop: 'auto',
         marginLeft: 0,
         marginRight: 0,

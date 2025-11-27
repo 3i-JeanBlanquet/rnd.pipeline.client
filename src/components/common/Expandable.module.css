@@ -1,15 +1,20 @@
 .expandable {
-  background-color: var(--bg-white);
-  width: 100%;
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  width: calc(100% - 2 * var(--spacing-sm));
   box-sizing: border-box;
-  margin: 0;
+  margin: var(--spacing-sm);
   padding: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .header {
-  background-color: var(--bg-light);
-  padding: 15px var(--spacing-xl);
-  border-bottom: 1px solid var(--border-light);
+  background-color: transparent;
+  padding: 10px var(--spacing-lg);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -20,7 +25,7 @@
 }
 
 .header:hover {
-  background-color: var(--bg-hover);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .headerContent {
@@ -40,7 +45,7 @@
 
 .title {
   margin: 0;
-  color: var(--text-primary);
+  color: #333;
   font-size: var(--font-xl);
   font-weight: 600;
   display: flex;
@@ -49,23 +54,23 @@
 }
 
 .titleSeparator {
-  color: #999;
+  color: #666;
   font-weight: 400;
   margin: 0 4px;
 }
 
 .titlePart {
-  color: var(--text-secondary);
+  color: #666;
   font-weight: 500;
 }
 
 .titlePartActive {
-  color: var(--text-primary);
+  color: #333;
   font-weight: 600;
 }
 
 .badge {
-  background-color: var(--color-primary);
+  background-color: #666;
   color: white;
   padding: 2px var(--spacing-sm);
   border-radius: 12px;
@@ -91,8 +96,9 @@
 }
 
 .content {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg);
   width: 100%;
   box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.5);
 }
 

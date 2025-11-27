@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { matchService, MatchData, ApiError } from '../../services';
 import { GetMatchesRequest, MatchFilterRequest } from '../../models';
 import MatchSearchFilterPanel from '../common/MatchSearchFilterPanel';
+import styles from './MatchGallery.module.css';
 
 interface MatchGalleryProps {
   onDeleteMatch?: (id: string) => void;
@@ -121,7 +122,7 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
 
   return (
     <>
-      <div>
+      <div className={styles.container}>
         {/* Search and Filter Panel */}
         <MatchSearchFilterPanel
           matchIds={matchIds}

@@ -63,7 +63,7 @@ const Expandable: React.FC<ExpandableProps> = ({
           >
             <path
               d="M1 1.5L6 6.5L11 1.5"
-              stroke="#666"
+              stroke="#333"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"

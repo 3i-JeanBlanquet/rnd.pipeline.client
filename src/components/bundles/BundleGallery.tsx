@@ -5,6 +5,7 @@ import ImageViewerModal from '../images/ImageViewerModal';
 import BundleRow from './BundleRow';
 import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
 import { downloadBundleAsZip } from '../../utils/bundleDownload';
+import styles from './BundleGallery.module.css';
 
 interface BundleGalleryProps {
   bundles: BundleData[];
@@ -111,49 +112,32 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
 
   return (
     <>
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '20px' }}>
+      <div className={styles.container}>
+        <div className={styles.refreshButton}>
           <button
             onClick={onRefresh}
             disabled={loading}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1,
-              fontSize: '12px'
-            }}
           >
             {loading ? 'Loading...' : 'Refresh'}
           </button>
         </div>
 
         {error && (
-          <div style={{
-            backgroundColor: '#fee',
-            color: '#c33',
-            padding: '12px',
-            borderRadius: '4px',
-            marginBottom: '20px',
-            border: '1px solid #fcc'
-          }}>
+          <div className={styles.errorMessage}>
             <strong>Error:</strong> {error}
           </div>
         )}
 
         {loading && (!Array.isArray(bundles) || bundles.length === 0) ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+          <div className={styles.loadingMessage}>
             Loading bundles...
           </div>
         ) : !Array.isArray(bundles) || bundles.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+          <div className={styles.emptyMessage}>
             No bundles found.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0, width: '100%' }}>
+          <div className={styles.bundleList}>
             {bundles.map((bundle) => (
               <BundleRow
                 key={bundle._id}
