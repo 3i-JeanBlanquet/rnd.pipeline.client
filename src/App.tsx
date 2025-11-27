@@ -8,6 +8,7 @@ import MatchCreate from './components/matches/MatchCreate';
 import MatchGallery from './components/matches/MatchGallery';
 import BundleGallery from './components/bundles/BundleGallery';
 import BundleCreate from './components/bundles/BundleCreate';
+import Notification from './components/common/Notification';
 import logoImage from './assets/3i.png';
 import ItemListIcon from './components/icons/ItemListIcon';
 import MatchAddIcon from './components/icons/MatchAddIcon';
@@ -21,6 +22,8 @@ const App: React.FC = () => {
   const [bundlesLoading, setBundlesLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
   const [bundlesError, setBundlesError] = useState<string | null>(null);
+  const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState(false);
 
   // Fetch images and bundles on component mount
   useEffect(() => {
@@ -82,6 +85,11 @@ const App: React.FC = () => {
     } finally {
       setBundlesLoading(false);
     }
+  };
+
+  const showProcessingNotification = (bundleId: string) => {
+    setNotificationMessage(`Bundle ${bundleId} is already being processed`);
+    setShowNotification(true);
   };
 
   return (
@@ -171,10 +179,18 @@ const App: React.FC = () => {
               loading={bundlesLoading}
               error={bundlesError}
               onRefresh={fetchBundles}
+              onShowProcessingNotification={showProcessingNotification}
             />
           </Expandable>
         </div>
       </div>
+
+      <Notification
+        message={notificationMessage || ''}
+        isVisible={showNotification}
+        onClose={() => setShowNotification(false)}
+        duration={5000}
+      />
 
       <footer style={{
         textAlign: 'center',

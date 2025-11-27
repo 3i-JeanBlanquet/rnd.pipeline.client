@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BundleData, bundleService } from '../../services';
+import { BundleData, bundleService, ApiResponse } from '../../services';
 import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
 import BundleDetails from './BundleDetails';
 import BundleResearchModal from './BundleResearchModal';
@@ -15,6 +15,7 @@ interface BundleRowProps {
   onDownloadZip: (bundle: BundleData) => void;
   downloading: string | null;
   onRefresh: () => void;
+  onShowProcessingNotification?: (bundleId: string) => void;
 }
 
 const BundleRow: React.FC<BundleRowProps> = ({
@@ -26,7 +27,8 @@ const BundleRow: React.FC<BundleRowProps> = ({
   onImageClick,
   onDownloadZip,
   downloading,
-  onRefresh
+  onRefresh,
+  onShowProcessingNotification
 }) => {
   const [featureLoading, setFeatureLoading] = useState(false);
   const [reconstructionLoading, setReconstructionLoading] = useState(false);
@@ -66,15 +68,56 @@ const BundleRow: React.FC<BundleRowProps> = ({
     });
   };
 
+  // Helper function to check if response indicates PROCESSING status
+  const isProcessingResponse = (response: ApiResponse<any>): boolean => {
+    // Check if response data contains msgCode field with "PROCESSING"
+    // Response structure: {msgCode: "PROCESSING", data: {}, code: 200}
+    if (response.data && typeof response.data === 'object') {
+      const data = response.data as any;
+      if (data.msgCode === 'PROCESSING' || data.msgCode === 'processing') {
+        return true;
+      }
+    }
+    
+    // Also check HTTP status code 202 (Accepted) or 102 (Processing) - common for async processing
+    if (response.status === 202 || response.status === 102) {
+      return true;
+    }
+    
+    // Check if message contains "PROCESSING"
+    if (response.message && response.message.toUpperCase().includes('PROCESSING')) {
+      return true;
+    }
+    
+    // Check if response data contains other status fields with "PROCESSING"
+    if (response.data && typeof response.data === 'object') {
+      const data = response.data as any;
+      if (data.status === 'PROCESSING' || data.status === 'processing') {
+        return true;
+      }
+      if (data.message === 'PROCESSING' || data.message === 'processing') {
+        return true;
+      }
+    }
+    
+    return false;
+  };
+
   const handleRunFeature = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setFeatureLoading(true);
     try {
-      await bundleService.runFeature(bundle._id);
-      console.log('Feature request submitted successfully');
-      setTimeout(() => {
-        onRefresh();
-      }, 1000);
+      const response = await bundleService.runFeature(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+        console.log('Feature request submitted successfully');
+        setTimeout(() => {
+          onRefresh();
+        }, 1000);
+      }
     } catch (err) {
       console.error('Feature request failed:', err);
       alert('Failed to run feature processing. Please try again.');
@@ -87,11 +130,17 @@ const BundleRow: React.FC<BundleRowProps> = ({
     e.stopPropagation();
     setReconstructionLoading(true);
     try {
-      await bundleService.runReconstruction(bundle._id);
-      console.log('Reconstruction request submitted successfully');
-      setTimeout(() => {
-        onRefresh();
-      }, 1000);
+      const response = await bundleService.runReconstruction(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+        console.log('Reconstruction request submitted successfully');
+        setTimeout(() => {
+          onRefresh();
+        }, 1000);
+      }
     } catch (err) {
       console.error('Reconstruction request failed:', err);
       alert('Failed to run reconstruction. Please try again.');
@@ -104,11 +153,17 @@ const BundleRow: React.FC<BundleRowProps> = ({
     e.stopPropagation();
     setMeshLoading(true);
     try {
-      await bundleService.runMesh(bundle._id);
-      console.log('Mesh request submitted successfully');
-      setTimeout(() => {
-        onRefresh();
-      }, 1000);
+      const response = await bundleService.runMesh(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+        console.log('Mesh request submitted successfully');
+        setTimeout(() => {
+          onRefresh();
+        }, 1000);
+      }
     } catch (err) {
       console.error('Mesh request failed:', err);
       alert('Failed to run mesh processing. Please try again.');
@@ -121,11 +176,17 @@ const BundleRow: React.FC<BundleRowProps> = ({
     e.stopPropagation();
     setMatchesLoading(true);
     try {
-      await bundleService.runMatches(bundle._id);
-      console.log('Matches request submitted successfully');
-      setTimeout(() => {
-        onRefresh();
-      }, 1000);
+      const response = await bundleService.runMatches(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+        console.log('Matches request submitted successfully');
+        setTimeout(() => {
+          onRefresh();
+        }, 1000);
+      }
     } catch (err) {
       console.error('Matches request failed:', err);
       alert('Failed to run matches processing. Please try again.');
@@ -138,11 +199,17 @@ const BundleRow: React.FC<BundleRowProps> = ({
     e.stopPropagation();
     setRunAllLoading(true);
     try {
-      await bundleService.runAll(bundle._id);
-      console.log('Run all request submitted successfully');
-      setTimeout(() => {
-        onRefresh();
-      }, 1000);
+      const response = await bundleService.runAll(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+        console.log('Run all request submitted successfully');
+        setTimeout(() => {
+          onRefresh();
+        }, 1000);
+      }
     } catch (err) {
       console.error('Run all request failed:', err);
       alert('Failed to run all processing. Please try again.');

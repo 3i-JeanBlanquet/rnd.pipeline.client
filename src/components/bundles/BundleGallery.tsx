@@ -12,6 +12,7 @@ interface BundleGalleryProps {
   error: string | null;
   onRefresh: () => void;
   onDeleteBundle?: (id: string) => void;
+  onShowProcessingNotification?: (bundleId: string) => void;
 }
 
 const BundleGallery: React.FC<BundleGalleryProps> = ({ 
@@ -19,7 +20,8 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
   loading, 
   error, 
   onRefresh,
-  onDeleteBundle
+  onDeleteBundle,
+  onShowProcessingNotification
 }) => {
   const [selectedBundle, setSelectedBundle] = useState<BundleData | null>(null);
   const [expandedBundles, setExpandedBundles] = useState<Set<string>>(new Set());
@@ -164,6 +166,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                 onDownloadZip={handleDownloadBundleAsZip}
                 downloading={downloading}
                 onRefresh={onRefresh}
+                onShowProcessingNotification={onShowProcessingNotification}
               />
             ))}
           </div>

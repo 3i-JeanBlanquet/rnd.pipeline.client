@@ -1,4 +1,4 @@
-import { apiService, ApiError } from './api';
+import { apiService, ApiError, ApiResponse } from './api';
 import { ImageService } from './imageService';
 import { MatchService } from './matchService';
 import { BundleService } from './bundleService';
@@ -10,5 +10,5 @@ export const matchService = new MatchService(apiService);
 export const bundleService = new BundleService(apiService);
 
 // Export types and enums
-export type { ApiError, ImageData, MatchData, MatchDetails, MatchesListResponse, BundleData };
+export type { ApiError, ApiResponse, ImageData, MatchData, MatchDetails, MatchesListResponse, BundleData };
 export { ProcessingStatus };
