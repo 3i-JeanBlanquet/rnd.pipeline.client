@@ -131,15 +131,15 @@
 }
 
 .actionButtonSuccess {
-  background-color: var(--color-success);
+  background-color: #666;
 }
 
 .actionButtonInfo {
-  background-color: var(--color-info);
+  background-color: #666;
 }
 
 .actionButtonPrimary {
-  background-color: var(--color-primary);
+  background-color: #666;
 }
 
 .actionButtonDisabled {

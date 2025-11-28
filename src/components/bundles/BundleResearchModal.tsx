@@ -355,7 +355,7 @@ const BundleResearchModal: React.FC<BundleResearchModalProps> = ({
             disabled={!selectedResearchImage || processingResearch}
             style={{
               padding: '10px 20px',
-              backgroundColor: !selectedResearchImage || processingResearch ? '#6c757d' : '#28a745',
+              backgroundColor: !selectedResearchImage || processingResearch ? '#6c757d' : '#666',
               color: 'white',
               border: 'none',
               borderRadius: '4px',

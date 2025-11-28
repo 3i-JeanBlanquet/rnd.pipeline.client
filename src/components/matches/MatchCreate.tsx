@@ -175,7 +175,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
             disabled={loading}
             style={{
               padding: '6px 12px',
-              backgroundColor: loading ? '#6c757d' : '#28a745',
+              backgroundColor: loading ? '#6c757d' : '#666',
               color: 'white',
               border: 'none',
               borderRadius: '4px',
@@ -194,7 +194,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
             }}
             onMouseLeave={(e) => {
               if (!loading) {
-                e.currentTarget.style.backgroundColor = '#28a745';
+                e.currentTarget.style.backgroundColor = '#666';
               }
             }}
           >
@@ -514,7 +514,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
                           position: 'absolute',
                           top: '4px',
                           right: '4px',
-                          backgroundColor: '#007bff',
+                          backgroundColor: '#666',
                           color: 'white',
                           borderRadius: '50%',
                           width: '20px',
@@ -563,7 +563,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
                 disabled={submitting || !selectedImage0 || !selectedImage1}
                 style={{
                   padding: '8px 16px',
-                  backgroundColor: (submitting || !selectedImage0 || !selectedImage1) ? '#6c757d' : '#28a745',
+                  backgroundColor: (submitting || !selectedImage0 || !selectedImage1) ? '#6c757d' : '#666',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',

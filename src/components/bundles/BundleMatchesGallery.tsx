@@ -161,7 +161,7 @@ const BundleMatchesGallery: React.FC<BundleMatchesGalleryProps> = ({
               disabled={!pagination.hasPrevPage || loading}
               style={{
                 padding: '4px 8px',
-                backgroundColor: !pagination.hasPrevPage ? '#6c757d' : '#007bff',
+                backgroundColor: !pagination.hasPrevPage ? '#6c757d' : '#666',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -180,7 +180,7 @@ const BundleMatchesGallery: React.FC<BundleMatchesGalleryProps> = ({
               disabled={!pagination.hasNextPage || loading}
               style={{
                 padding: '4px 8px',
-                backgroundColor: !pagination.hasNextPage ? '#6c757d' : '#007bff',
+                backgroundColor: !pagination.hasNextPage ? '#6c757d' : '#666',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',

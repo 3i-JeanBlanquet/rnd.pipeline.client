@@ -1,7 +1,7 @@
 import React from 'react';
-import styles from './SearchFilterPanel.module.css';
+import styles from './ItemSearchFilterPanel.module.css';
 
-interface SearchFilterPanelProps {
+interface ItemSearchFilterPanelProps {
   itemIds?: string;
   onItemIdsChange: (value: string) => void;
   parentIds?: string;
@@ -18,7 +18,7 @@ interface SearchFilterPanelProps {
   onApplyFilters: () => void;
 }
 
-const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
+const ItemSearchFilterPanel: React.FC<ItemSearchFilterPanelProps> = ({
   itemIds,
   onItemIdsChange,
   parentIds,
@@ -42,12 +42,14 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
         <h4 className={styles.title}>Search & Filter</h4>
         <div className={styles.buttonGroup}>
           <button
+            type="button"
             onClick={() => setShowFilters(!showFilters)}
             className={styles.button}
           >
             {showFilters ? '▼ Hide Filters' : '▶ Show Filters'}
           </button>
           <button
+            type="button"
             onClick={onApplyFilters}
             disabled={loading}
             className={`${styles.button} ${styles.buttonSuccess}`}
@@ -151,5 +153,5 @@ const SearchFilterPanel: React.FC<SearchFilterPanelProps> = ({
   );
 };
 
-export default SearchFilterPanel;
+export default ItemSearchFilterPanel;
 

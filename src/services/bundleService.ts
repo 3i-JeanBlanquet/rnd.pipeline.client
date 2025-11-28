@@ -90,6 +90,20 @@ export class BundleService {
     return `${config.s3BucketUrl}/${confPath}`;
   }
 
+  // Helper method to get S3 URL for 3D texture 00 file
+  get3DTexture00Url(bundleData: BundleData): string {
+    const bundleStorage = new BundleStorage(bundleData._id);
+    const texturePath = bundleStorage.get3DTexture00File();
+    return `${config.s3BucketUrl}/${texturePath}`;
+  }
+
+  // Helper method to get S3 URL for 3D texture 01 file
+  get3DTexture01Url(bundleData: BundleData): string {
+    const bundleStorage = new BundleStorage(bundleData._id);
+    const texturePath = bundleStorage.get3DTexture01File();
+    return `${config.s3BucketUrl}/${texturePath}`;
+  }
+
   async getBundles() {
     return this.api.get<BundleData[]>('/bundles');
   }
@@ -100,6 +114,10 @@ export class BundleService {
 
   async runFeature(bundleId: string) {
     return this.api.post(`/bundles/${bundleId}/features`, {});
+  }
+
+  async runDepth(bundleId: string) {
+    return this.api.post(`/bundles/${bundleId}/depth`, {});
   }
 
   async runReconstruction(bundleId: string) {

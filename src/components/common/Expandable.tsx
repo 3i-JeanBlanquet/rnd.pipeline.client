@@ -28,6 +28,24 @@ const Expandable: React.FC<ExpandableProps> = ({
         onClick={toggleExpanded}
         className={styles.header}
       >
+        <div className={`${styles.arrow} ${isExpanded ? styles.arrowExpanded : ''}`}>
+          <svg
+            width="12"
+            height="8"
+            viewBox="0 0 12 8"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={styles.arrowSvg}
+          >
+            <path
+              d="M1 1.5L6 6.5L11 1.5"
+              stroke="#333"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
         <div className={styles.headerContent}>
           {icon && (
             <div className={styles.iconContainer}>
@@ -51,24 +69,6 @@ const Expandable: React.FC<ExpandableProps> = ({
               {badge}
             </span>
           )}
-        </div>
-        <div className={`${styles.arrow} ${isExpanded ? styles.arrowExpanded : ''}`}>
-          <svg
-            width="12"
-            height="8"
-            viewBox="0 0 12 8"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={styles.arrowSvg}
-          >
-            <path
-              d="M1 1.5L6 6.5L11 1.5"
-              stroke="#333"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
         </div>
       </div>
       

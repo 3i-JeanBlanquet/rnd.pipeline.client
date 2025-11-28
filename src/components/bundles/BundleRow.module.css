@@ -245,11 +245,11 @@
 }
 
 .actionButtonSuccess {
-  background-color: var(--color-success);
+  background-color: #666;
 }
 
 .actionButtonPrimary {
-  background-color: var(--color-primary);
+  background-color: #666;
   font-weight: 600;
 }
 

@@ -13,7 +13,7 @@
 
 .refreshButton button {
   padding: 6px var(--spacing-md);
-  background-color: var(--color-success);
+  background-color: #666;
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -111,7 +111,7 @@
 
 .modalDownloadButton {
   padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-info);
+  background-color: #666;
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -176,7 +176,7 @@
 
 .downloadButton {
   padding: 6px var(--spacing-md);
-  background-color: var(--color-success);
+  background-color: #666;
   color: white;
   border: none;
   border-radius: var(--radius-md);

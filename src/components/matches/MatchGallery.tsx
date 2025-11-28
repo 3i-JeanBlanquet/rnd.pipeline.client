@@ -157,7 +157,7 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
               disabled={page === 1 || loading}
               style={{
                 padding: '6px 12px',
-                backgroundColor: page === 1 ? '#6c757d' : '#007bff',
+                backgroundColor: page === 1 ? '#6c757d' : '#666',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -173,7 +173,7 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
               disabled={matches.length < limit || loading}
               style={{
                 padding: '6px 12px',
-                backgroundColor: matches.length < limit ? '#6c757d' : '#007bff',
+                backgroundColor: matches.length < limit ? '#6c757d' : '#666',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',

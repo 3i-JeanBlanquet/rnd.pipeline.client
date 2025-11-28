@@ -160,7 +160,7 @@
 
 .processButton button {
   padding: 10px var(--spacing-xl);
-  background-color: var(--color-success);
+  background-color: #666;
   color: white;
   border: none;
   border-radius: var(--radius-md);

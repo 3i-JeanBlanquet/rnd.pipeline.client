@@ -24,7 +24,7 @@
 
 .refreshButton {
   padding: 6px var(--spacing-md);
-  background-color: var(--color-success);
+  background-color: #666;
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -256,7 +256,7 @@
   position: absolute;
   top: var(--spacing-xs);
   right: var(--spacing-xs);
-  background-color: var(--color-primary);
+  background-color: #666;
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -292,7 +292,7 @@
 
 .submitButton {
   padding: var(--spacing-sm) var(--spacing-lg);
-  background-color: var(--color-success);
+  background-color: #666;
   color: white;
   border: none;
   border-radius: var(--radius-md);

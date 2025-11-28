@@ -45,6 +45,14 @@ export class BundleStorage{
     return `bundles/${this._id}/3d/textured_mesh.obj`;
   }
 
+  public get3DTexture00File():string{
+    return `bundles/${this._id}/3d/textured_mesh_material0000_map_Kd.png`;
+  }
+
+  public get3DTexture01File():string{
+    return `bundles/${this._id}/3d/textured_mesh_material0001_map_Kd.png`;
+  }
+
   public get3DMeshMaterialFile():string{
     return `bundles/${this._id}/3d/textured_mesh.mtl`;
   }

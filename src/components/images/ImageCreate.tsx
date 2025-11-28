@@ -124,22 +124,22 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
         )}
         
         <div className={styles.inputGroup}>
-          <input
-            type="text"
-            placeholder="Item ID (required)"
-            value={itemId}
-            onChange={(e) => setItemId(e.target.value)}
+              <input
+                type="text"
+                placeholder="Item ID (required)"
+                value={itemId}
+                onChange={(e) => setItemId(e.target.value)}
             className={styles.textInput}
-          />
-          <button
-            type="button"
-            onClick={generateUUID}
+              />
+              <button
+                type="button"
+                onClick={generateUUID}
             className={styles.generateButton}
-            title="Generate a new UUID"
-          >
-            Generate UUID
-          </button>
-        </div>
+                title="Generate a new UUID"
+              >
+                Generate UUID
+              </button>
+            </div>
         
         <button
           type="submit"

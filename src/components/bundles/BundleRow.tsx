@@ -31,10 +31,11 @@ const BundleRow: React.FC<BundleRowProps> = ({
   onShowProcessingNotification
 }) => {
   const [featureLoading, setFeatureLoading] = useState(false);
+  const [depthLoading, setDepthLoading] = useState(false);
   const [reconstructionLoading, setReconstructionLoading] = useState(false);
   const [meshLoading, setMeshLoading] = useState(false);
   const [matchesLoading, setMatchesLoading] = useState(false);
-  const [runAllLoading, setRunAllLoading] = useState(false);
+  const [refreshLoading, setRefreshLoading] = useState(false);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showRunButtons, setShowRunButtons] = useState(false);
   const [showResearchModal, setShowResearchModal] = useState(false);
@@ -113,16 +114,53 @@ const BundleRow: React.FC<BundleRowProps> = ({
           onShowProcessingNotification(bundle._id);
         }
       } else {
-        console.log('Feature request submitted successfully');
-        setTimeout(() => {
-          onRefresh();
-        }, 1000);
+      console.log('Feature request submitted successfully');
+      setTimeout(() => {
+        onRefresh();
+      }, 1000);
       }
     } catch (err) {
       console.error('Feature request failed:', err);
       alert('Failed to run feature processing. Please try again.');
     } finally {
       setFeatureLoading(false);
+    }
+  };
+
+  const handleRunDepth = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDepthLoading(true);
+    try {
+      const response = await bundleService.runDepth(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+        console.log('Depth request submitted successfully');
+        setTimeout(() => {
+          onRefresh();
+        }, 1000);
+      }
+    } catch (err) {
+      console.error('Depth request failed:', err);
+      alert('Failed to run depth processing. Please try again.');
+    } finally {
+      setDepthLoading(false);
+    }
+  };
+
+  const handleRefresh = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRefreshLoading(true);
+    try {
+      await bundleService.getBundle(bundle._id);
+      onRefresh();
+    } catch (err) {
+      console.error('Failed to refresh bundle:', err);
+      alert('Failed to refresh bundle status. Please try again.');
+    } finally {
+      setRefreshLoading(false);
     }
   };
 
@@ -136,10 +174,10 @@ const BundleRow: React.FC<BundleRowProps> = ({
           onShowProcessingNotification(bundle._id);
         }
       } else {
-        console.log('Reconstruction request submitted successfully');
-        setTimeout(() => {
-          onRefresh();
-        }, 1000);
+      console.log('Reconstruction request submitted successfully');
+      setTimeout(() => {
+        onRefresh();
+      }, 1000);
       }
     } catch (err) {
       console.error('Reconstruction request failed:', err);
@@ -159,10 +197,10 @@ const BundleRow: React.FC<BundleRowProps> = ({
           onShowProcessingNotification(bundle._id);
         }
       } else {
-        console.log('Mesh request submitted successfully');
-        setTimeout(() => {
-          onRefresh();
-        }, 1000);
+      console.log('Mesh request submitted successfully');
+      setTimeout(() => {
+        onRefresh();
+      }, 1000);
       }
     } catch (err) {
       console.error('Mesh request failed:', err);
@@ -182,39 +220,16 @@ const BundleRow: React.FC<BundleRowProps> = ({
           onShowProcessingNotification(bundle._id);
         }
       } else {
-        console.log('Matches request submitted successfully');
-        setTimeout(() => {
-          onRefresh();
-        }, 1000);
+      console.log('Matches request submitted successfully');
+      setTimeout(() => {
+        onRefresh();
+      }, 1000);
       }
     } catch (err) {
       console.error('Matches request failed:', err);
       alert('Failed to run matches processing. Please try again.');
     } finally {
       setMatchesLoading(false);
-    }
-  };
-
-  const handleRunAll = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setRunAllLoading(true);
-    try {
-      const response = await bundleService.runAll(bundle._id);
-      if (isProcessingResponse(response)) {
-        if (onShowProcessingNotification) {
-          onShowProcessingNotification(bundle._id);
-        }
-      } else {
-        console.log('Run all request submitted successfully');
-        setTimeout(() => {
-          onRefresh();
-        }, 1000);
-      }
-    } catch (err) {
-      console.error('Run all request failed:', err);
-      alert('Failed to run all processing. Please try again.');
-    } finally {
-      setRunAllLoading(false);
     }
   };
 
@@ -323,7 +338,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
                 {bundle.itemIds.length} items • Created: {bundle.createdAt ? formatDate(bundle.createdAt) : 'N/A'}
               </p>
               {/* Status badges - more compact */}
-              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <span style={{
                   padding: '2px 6px',
                   borderRadius: '3px',
@@ -360,6 +375,32 @@ const BundleRow: React.FC<BundleRowProps> = ({
                 }}>
                   M: {bundle.meshStatus}
                 </span>
+                <button
+                  onClick={handleRefresh}
+                  disabled={refreshLoading}
+                  style={{
+                    padding: '2px 6px',
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    cursor: refreshLoading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: refreshLoading ? 0.6 : 1,
+                    transition: 'opacity 0.2s ease'
+                  }}
+                  title="Refresh bundle statuses"
+                >
+                  <span style={{
+                    fontSize: '12px',
+                    color: '#666',
+                    transform: refreshLoading ? 'rotate(360deg)' : 'rotate(0deg)',
+                    transition: refreshLoading ? 'transform 0.6s linear infinite' : 'transform 0.2s ease',
+                    display: 'inline-block'
+                  }}>
+                    🔄
+                  </span>
+                </button>
               </div>
             </div>
           </div>
@@ -584,7 +625,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
+              gap: '8px',
               fontSize: '11px',
               color: '#6c757d',
               fontWeight: '500',
@@ -597,7 +638,6 @@ const BundleRow: React.FC<BundleRowProps> = ({
               e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
-            <span>Processing Actions</span>
             <span style={{
               transform: showRunButtons ? 'rotate(180deg)' : 'rotate(0deg)',
               transition: 'transform 0.2s ease',
@@ -605,6 +645,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
             }}>
               ▼
             </span>
+            <span>Processing Actions</span>
           </button>
           {showRunButtons && (
             <div
@@ -623,7 +664,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   disabled={featureLoading}
                   style={{
                     padding: '6px 10px',
-                    backgroundColor: featureLoading ? '#6c757d' : '#28a745',
+                    backgroundColor: featureLoading ? '#6c757d' : '#666',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -638,11 +679,30 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   {featureLoading ? '⏳' : '▶'} Feature
                 </button>
                 <button
+                  onClick={handleRunDepth}
+                  disabled={depthLoading}
+                  style={{
+                    padding: '6px 10px',
+                    backgroundColor: depthLoading ? '#6c757d' : '#666',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: depthLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '11px',
+                    fontWeight: '500',
+                    opacity: depthLoading ? 0.6 : 1,
+                    whiteSpace: 'nowrap'
+                  }}
+                  title="Run depth processing"
+                >
+                  {depthLoading ? '⏳' : '▶'} Depth
+                </button>
+                <button
                   onClick={handleRunMatches}
                   disabled={matchesLoading}
                   style={{
                     padding: '6px 10px',
-                    backgroundColor: matchesLoading ? '#6c757d' : '#28a745',
+                    backgroundColor: matchesLoading ? '#6c757d' : '#666',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -661,7 +721,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   disabled={reconstructionLoading}
                   style={{
                     padding: '6px 10px',
-                    backgroundColor: reconstructionLoading ? '#6c757d' : '#28a745',
+                    backgroundColor: reconstructionLoading ? '#6c757d' : '#666',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -680,7 +740,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   disabled={meshLoading}
                   style={{
                     padding: '6px 10px',
-                    backgroundColor: meshLoading ? '#6c757d' : '#28a745',
+                    backgroundColor: meshLoading ? '#6c757d' : '#666',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -694,12 +754,12 @@ const BundleRow: React.FC<BundleRowProps> = ({
                 >
                   {meshLoading ? '⏳' : '▶'} Mesh
                 </button>
-                <button
+                {/* <button
                   onClick={handleRunAll}
                   disabled={runAllLoading}
                   style={{
                     padding: '6px 10px',
-                    backgroundColor: runAllLoading ? '#6c757d' : '#007bff',
+                    backgroundColor: runAllLoading ? '#6c757d' : '#666',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -712,7 +772,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   title="Run all processing steps"
                 >
                   {runAllLoading ? '⏳' : '▶'} Run All
-                </button>
+                </button> */}
               </div>
             </div>
           )}

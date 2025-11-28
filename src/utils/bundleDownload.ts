@@ -354,6 +354,16 @@ const createBundleFileList = (bundle: BundleData): Array<{ url: string; path: st
     path: '3d/textured_mesh.conf',
     name: 'textured_mesh.conf'
   });
+  files.push({
+    url: bundleService.get3DTexture00Url(bundle),
+    path: '3d/textured_mesh_material0000_map_Kd.png',
+    name: 'textured_mesh_material0000_map_Kd.png'
+  });
+  files.push({
+    url: bundleService.get3DTexture01Url(bundle),
+    path: '3d/textured_mesh_material0001_map_Kd.png',
+    name: 'textured_mesh_material0001_map_Kd.png'
+  });
 
   return files;
 };

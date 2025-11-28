@@ -3,7 +3,7 @@ import { ImageData, ApiError, imageService } from '../../services';
 import { GetItemsRequest, ItemFilterRequest } from '../../models';
 import ImageRow from './ImageRow';
 import ImageModal from './ImageModal';
-import SearchFilterPanel from '../common/SearchFilterPanel';
+import ItemSearchFilterPanel from '../common/ItemSearchFilterPanel';
 import styles from './ImageGallery.module.css';
 
 interface ImageGalleryProps {
@@ -144,7 +144,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = () => {
     <>
       <div className={styles.container}>
         {/* Search and Filter Panel */}
-        <SearchFilterPanel
+        <ItemSearchFilterPanel
           itemIds={itemIds}
           onItemIdsChange={(value) => { setItemIds(value); setPage(1); }}
           parentIds={parentIds}

@@ -1,24 +1,20 @@
 .expandable {
-  background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background-color: rgb(243, 243, 243);
   width: calc(100% - 2 * var(--spacing-sm));
   box-sizing: border-box;
   margin: var(--spacing-sm);
   padding: 0;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .header {
   background-color: transparent;
   padding: 10px var(--spacing-lg);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: var(--spacing-md);
   transition: background-color var(--transition-fast);
   width: 100%;
   box-sizing: border-box;
@@ -99,6 +95,6 @@
   padding: var(--spacing-lg);
   width: 100%;
   box-sizing: border-box;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgb(243, 243, 243);
 }
 

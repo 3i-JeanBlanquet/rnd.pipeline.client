@@ -138,15 +138,15 @@ const App: React.FC = () => {
             <Expandable 
               title="NEW"
               icon={<MatchAddIcon color="#333" />}
-            >
-              <ImageCreate onUploadSuccess={fetchImages} />
-            </Expandable>
-            
-            <Expandable 
+          >
+            <ImageCreate onUploadSuccess={fetchImages} />
+          </Expandable>
+          
+          <Expandable 
               title="LIST"
               icon={<ItemListIcon color="#333" />}
-            >
-              <ImageGallery />
+          >
+            <ImageGallery />
             </Expandable>
           </Expandable>
           
@@ -158,15 +158,15 @@ const App: React.FC = () => {
             <Expandable 
               title="NEW"
               icon={<MatchAddIcon color="#333" />}
-            >
-              <MatchCreate />
-            </Expandable>
-            
-            <Expandable 
+          >
+            <MatchCreate />
+          </Expandable>
+          
+          <Expandable 
               title="LIST" 
               icon={<ItemListIcon color="#333" />}
-            >
-              <MatchGallery />
+          >
+            <MatchGallery />
             </Expandable>
           </Expandable>
           
@@ -179,23 +179,23 @@ const App: React.FC = () => {
             <Expandable 
               title="NEW"
               icon={<MatchAddIcon color="#333" />}
-            >
-              <BundleCreate 
-                onCreateSuccess={fetchBundles}
-              />
-            </Expandable>
-            
-            <Expandable 
+          >
+            <BundleCreate 
+              onCreateSuccess={fetchBundles}
+            />
+          </Expandable>
+          
+          <Expandable 
               title="LIST" 
               icon={<ItemListIcon color="#333" />}
-            >
-              <BundleGallery 
-                bundles={bundles}
-                loading={bundlesLoading}
-                error={bundlesError}
-                onRefresh={fetchBundles}
+          >
+            <BundleGallery 
+              bundles={bundles}
+              loading={bundlesLoading}
+              error={bundlesError}
+              onRefresh={fetchBundles}
                 onShowProcessingNotification={showProcessingNotification}
-              />
+            />
             </Expandable>
           </Expandable>
         </div>

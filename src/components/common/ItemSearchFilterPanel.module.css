@@ -34,7 +34,7 @@
 }
 
 .buttonSuccess {
-  background-color: var(--color-success);
+  background-color: #666;
 }
 
 .button:disabled {

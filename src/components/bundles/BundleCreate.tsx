@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ImageData, ApiError, imageService, bundleService } from '../../services';
-import { GetItemsRequest } from '../../models';
+import { GetItemsRequest, ItemFilterRequest } from '../../models';
 import ImageFallback from '../images/ImageFallback';
+import ItemSearchFilterPanel from '../common/ItemSearchFilterPanel';
 import styles from './BundleCreate.module.css';
 
 interface BundleCreateProps {
@@ -16,17 +17,48 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
+  // Filter and sort state
+  const [itemIds, setItemIds] = useState<string>('');
+  const [parentIds, setParentIds] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt' | '_id' | 'extension' | 'tilingStatus' | 'featureStatus' | 'depthStatus'>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [limit, setLimit] = useState(200);
+
+  // Helper function to parse IDs string into array
+  const parseIdsString = (idsString: string): string[] => {
+    if (!idsString || idsString.trim() === '') return [];
+    return idsString
+      .split(/[,\n]/)
+      .map(id => id.trim())
+      .filter(id => id.length > 0);
+  };
+
   // Fetch parent items (images with parentId)
   const fetchParentItems = async () => {
     setLoading(true);
     setError(null);
     try {
+      // Parse itemIds and parentIds
+      const itemIdsList = parseIdsString(itemIds);
+      const parentIdsList = parseIdsString(parentIds);
+      
+      // Build filter object
+      const filter: ItemFilterRequest = {};
+      if (itemIdsList.length > 0) {
+        filter._id = itemIdsList.length === 1 ? itemIdsList[0] : itemIdsList.join(',');
+      }
+      if (parentIdsList.length > 0) {
+        filter.parentId = parentIdsList.length === 1 ? parentIdsList[0] : parentIdsList.join(',');
+      }
+      
       const request: GetItemsRequest = {
-        limit: 200,
-        filter: {}
+        limit,
+        sortBy,
+        sortOrder,
+        filter: Object.keys(filter).length > 0 ? filter : undefined
       };
       
-      const response = await imageService.getImages(200, request);
+      const response = await imageService.getImages(limit, request);
       console.log('Parent items API Response:', response);
       
       // Handle different response structures
@@ -35,18 +67,20 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
       
       if (Array.isArray(imagesData)) {
         imagesList = imagesData;
+      } else if (imagesData && typeof imagesData === 'object' && 'data' in imagesData && Array.isArray((imagesData as any).data)) {
+        // Handle API response structure: {resultCd, resultMsg, data: [...], pagination}
+        imagesList = (imagesData as any).data;
       } else if (imagesData && typeof imagesData === 'object' && 'items' in imagesData && Array.isArray((imagesData as any).items)) {
         imagesList = (imagesData as any).items;
-      } else if (imagesData && typeof imagesData === 'object' && 'data' in imagesData && Array.isArray((imagesData as any).data)) {
-        imagesList = (imagesData as any).data;
       } else {
         console.warn('Unexpected response structure:', imagesData);
         imagesList = [];
       }
       
-      // Filter images that have a parentId (these are the parent items)
-      const parentItems = imagesList.filter(img => img.parentId);
-      setCandidateImages(parentItems);
+      // For bundle creation, we want to show all items (not just those with parentId)
+      // Items with parentId are child items, items without parentId are parent items
+      // Since the API might return items without parentId field, we show all items
+      setCandidateImages(imagesList);
     } catch (err) {
       console.error('Failed to fetch parent items:', err);
       const apiError = err as ApiError;
@@ -147,12 +181,15 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
   };
 
   // Group images by parentId for better display
+  // Items with parentId are child items (grouped by their parentId)
+  // Items without parentId are parent items themselves (grouped by their own _id)
   const groupedByParent = candidateImages.reduce((acc, img) => {
-    const parentId = img.parentId || 'unknown';
-    if (!acc[parentId]) {
-      acc[parentId] = [];
+    // Use parentId if it exists, otherwise use the item's own _id (it's a parent item)
+    const groupKey = img.parentId || img._id;
+    if (!acc[groupKey]) {
+      acc[groupKey] = [];
     }
-    acc[parentId].push(img);
+    acc[groupKey].push(img);
     return acc;
   }, {} as Record<string, ImageData[]>);
 
@@ -161,49 +198,33 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h3 style={{ marginBottom: '10px', color: '#333' }}>Select Parent Items</h3>
-            <p style={{ fontSize: '12px', color: '#666', marginBottom: '20px' }}>
-              Select parent items to create a bundle. Selected: {selectedItemIds.size} item(s)
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              fetchParentItems();
-              setImageErrors(new Set()); // Clear image errors on refresh
-            }}
-            disabled={loading}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: loading ? '#6c757d' : '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '12px',
-              height: 'fit-content',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              opacity: loading ? 0.6 : 1
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) {
-                e.currentTarget.style.backgroundColor = '#218838';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!loading) {
-                e.currentTarget.style.backgroundColor = '#28a745';
-              }
-            }}
-          >
-            <span>↻</span>
-            {loading ? 'Loading...' : 'Refresh Items'}
-          </button>
+        <div style={{ marginBottom: '20px' }}>
+          <h3 style={{ marginBottom: '10px', color: '#333' }}>Select panorama images</h3>
+          <p style={{ fontSize: '12px', color: '#666', marginBottom: '20px' }}>
+            Select panorama images to create a bundle. Selected: {selectedItemIds.size} item(s)
+          </p>
         </div>
+
+        {/* Search and Filter Panel */}
+        <ItemSearchFilterPanel
+          itemIds={itemIds}
+          onItemIdsChange={setItemIds}
+          parentIds={parentIds}
+          onParentIdsChange={setParentIds}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
+          page={1}
+          limit={limit}
+          onLimitChange={setLimit}
+          loading={loading}
+          itemCount={candidateImages.length}
+          onApplyFilters={() => {
+            fetchParentItems();
+            setImageErrors(new Set()); // Clear image errors on refresh
+          }}
+        />
 
         {error && (
           <div style={{
@@ -394,7 +415,7 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
                           position: 'absolute',
                           top: '4px',
                           right: '4px',
-                          backgroundColor: '#007bff',
+                          backgroundColor: '#666',
                           color: 'white',
                           borderRadius: '50%',
                           width: '24px',
@@ -438,7 +459,7 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
                 disabled={submitting || selectedItemIds.size === 0}
                 style={{
                   padding: '8px 16px',
-                  backgroundColor: (submitting || selectedItemIds.size === 0) ? '#6c757d' : '#28a745',
+                  backgroundColor: (submitting || selectedItemIds.size === 0) ? '#6c757d' : '#666',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',

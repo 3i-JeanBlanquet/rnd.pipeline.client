@@ -46,7 +46,7 @@
 
 .paginationButton {
   padding: var(--spacing-xs) var(--spacing-sm);
-  background-color: var(--color-primary);
+  background-color: #666;
   color: white;
   border: none;
   border-radius: var(--radius-md);

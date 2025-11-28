@@ -217,7 +217,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                   disabled={downloading === selectedBundle._id}
                   style={{
                     padding: '8px 16px',
-                    backgroundColor: downloading === selectedBundle._id ? '#6c757d' : '#17a2b8',
+                    backgroundColor: downloading === selectedBundle._id ? '#6c757d' : '#666',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -300,7 +300,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DDatabaseUrl(selectedBundle), `bundle_${selectedBundle._id}_data.db`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -314,7 +314,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DPointsUrl(selectedBundle), `bundle_${selectedBundle._id}_points3D.bin`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -328,7 +328,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DImagesUrl(selectedBundle), `bundle_${selectedBundle._id}_images.bin`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -342,7 +342,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DCamerasUrl(selectedBundle), `bundle_${selectedBundle._id}_cameras.bin`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -356,7 +356,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.getCamerasUrl(selectedBundle), `bundle_${selectedBundle._id}_cameras.json`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -370,7 +370,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DMeshUrl(selectedBundle), `bundle_${selectedBundle._id}_mesh.ply`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -384,7 +384,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DMeshGeometryUrl(selectedBundle), `bundle_${selectedBundle._id}_textured_mesh.obj`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -398,7 +398,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DMeshMaterialUrl(selectedBundle), `bundle_${selectedBundle._id}_textured_mesh.mtl`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
@@ -412,7 +412,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                       onClick={() => downloadFile(bundleService.get3DTexturedConfUrl(selectedBundle), `bundle_${selectedBundle._id}_textured_mesh.conf`)}
                       style={{
                         padding: '6px 12px',
-                        backgroundColor: '#28a745',
+                        backgroundColor: '#666',
                         color: 'white',
                         border: 'none',
                         borderRadius: '4px',
