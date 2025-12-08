@@ -349,7 +349,31 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   textTransform: 'uppercase',
                   letterSpacing: '0.3px'
                 }}>
-                  F: {bundle.featureStatus}
+                  FEA: {bundle.featureStatus}
+                </span>
+                <span style={{
+                  padding: '2px 6px',
+                  borderRadius: '3px',
+                  fontSize: '9px',
+                  fontWeight: '600',
+                  backgroundColor: getStatusColor(bundle.matchStatus),
+                  color: getStatusTextColor(bundle.matchStatus),
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.3px'
+                }}>
+                  MAT: {bundle.matchStatus}
+                </span>
+                <span style={{
+                  padding: '2px 6px',
+                  borderRadius: '3px',
+                  fontSize: '9px',
+                  fontWeight: '600',
+                  backgroundColor: getStatusColor(bundle.depthStatus),
+                  color: getStatusTextColor(bundle.depthStatus),
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.3px'
+                }}>
+                  DEP: {bundle.depthStatus}
                 </span>
                 <span style={{
                   padding: '2px 6px',
@@ -361,7 +385,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   textTransform: 'uppercase',
                   letterSpacing: '0.3px'
                 }}>
-                  R: {bundle.reconstruction}
+                  REC: {bundle.reconstruction}
                 </span>
                 <span style={{
                   padding: '2px 6px',
@@ -373,7 +397,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   textTransform: 'uppercase',
                   letterSpacing: '0.3px'
                 }}>
-                  M: {bundle.meshStatus}
+                  MES: {bundle.meshStatus}
                 </span>
                 <button
                   onClick={handleRefresh}

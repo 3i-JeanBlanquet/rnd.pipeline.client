@@ -148,6 +148,25 @@ export class ApiService {
       isFormData: true,
     });
   }
+
+  // Clip upload method
+  async uploadClipFile<T>(endpoint: string, file: File, additionalData?: Record<string, any>): Promise<ApiResponse<T>> {
+    const formData = new FormData();
+    // Append the file with "clip" field name as per API specification
+    formData.append('clip', file, file.name);
+    
+    if (additionalData) {
+      Object.entries(additionalData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+    }
+
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: formData,
+      isFormData: true,
+    });
+  }
 }
 
 // Create a default instance with environment configuration

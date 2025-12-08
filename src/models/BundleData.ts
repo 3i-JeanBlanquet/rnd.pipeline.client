@@ -12,7 +12,8 @@ export interface BundleData {
   // itemId -> closest itemId -> score
   nearestItems: Map<string, INearestItem[]>;
   featureStatus: ProcessingStatus;
-  // todo: rename to positioningStatus
+  matchStatus: ProcessingStatus;
+  depthStatus: ProcessingStatus;
   reconstruction: ProcessingStatus;
   meshStatus: ProcessingStatus;
   createdAt?: Date;

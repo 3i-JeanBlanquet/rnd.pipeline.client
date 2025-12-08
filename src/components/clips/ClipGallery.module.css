@@ -1,0 +1,59 @@
+.container {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+}
+
+.errorMessage {
+  background-color: #fee;
+  color: #c33;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid #fcc;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.clipList {
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  gap: 10px;
+}
+
+.paginationButton {
+  padding: 6px var(--spacing-md);
+  background-color: #666;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-md);
+  transition: opacity var(--transition-fast);
+}
+
+.paginationButton:disabled {
+  background-color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+

@@ -1,0 +1,202 @@
+.clipRow {
+  background-color: var(--bg-white);
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.clipCard {
+  background-color: var(--bg-light);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.topSection {
+  padding: 14px var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background-color var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+  gap: var(--spacing-lg);
+  cursor: pointer;
+}
+
+.topSection:hover {
+  background-color: var(--bg-hover);
+}
+
+.leftContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.expandIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.thumbnailPlaceholder {
+  width: 60px;
+  height: 60px;
+  background-color: #f0f0f0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.clipInfo {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.clipId {
+  margin: 0 0 6px 0;
+  font-size: var(--font-lg);
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.clipMeta {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.statusBadges {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.statusBadge {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 6px 10px;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.actionButtonPrimary {
+  background-color: #666;
+}
+
+.actionButtonDisabled {
+  background-color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.itemsSection {
+  padding: 16px;
+  background-color: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  border-top: 1px solid var(--border-light);
+}
+
+.itemsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.itemsTitle {
+  font-size: 14px;
+  color: #495057;
+}
+
+.copyButton {
+  padding: 4px 8px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity var(--transition-fast);
+}
+
+.copyButton:hover {
+  opacity: 0.8;
+}
+
+.itemsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.itemCard {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  color: #495057;
+  border: 1px solid #ced4da;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.itemId {
+  font-size: 11px;
+  word-break: break-all;
+}
+

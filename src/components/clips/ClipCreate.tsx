@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { imageService, ApiError } from '../../services';
-import styles from './ImageCreate.module.css';
+import { clipService, ApiError } from '../../services';
+import styles from './ClipCreate.module.css';
 
-interface ImageCreateProps {
+interface ClipCreateProps {
   onUploadSuccess: () => void;
 }
 
@@ -14,7 +14,7 @@ interface FileWithId {
   error?: string;
 }
 
-const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
+const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
   const [uploading, setUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileWithId[]>([]);
   const [currentUploadIndex, setCurrentUploadIndex] = useState<number | null>(null);
@@ -39,14 +39,14 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
 
     files.forEach((file) => {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        errors.push(`${file.name}: Please select a valid image file`);
+      if (!file.type.startsWith('video/')) {
+        errors.push(`${file.name}: Please select a valid video file`);
         return;
       }
       
-      // Validate file size (max 30MB)
-      if (file.size > 30 * 1024 * 1024) {
-        errors.push(`${file.name}: File size must be less than 30MB`);
+      // Validate file size (max 2GB for videos)
+      if (file.size > 2 * 1024 * 1024 * 1024) {
+        errors.push(`${file.name}: File size must be less than 2GB`);
         return;
       }
 
@@ -94,14 +94,14 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
       ));
 
       try {
-        console.log('Uploading image:', {
+        console.log('Uploading clip:', {
           fileName: fileWithId.file.name,
           fileSize: fileWithId.file.size,
           fileType: fileWithId.file.type,
-          itemId: fileWithId.id
+          clipId: fileWithId.id
         });
         
-        await imageService.uploadImage(fileWithId.file, fileWithId.id);
+        await clipService.uploadClip(fileWithId.file, fileWithId.id);
         
         console.log('Upload successful:', fileWithId.file.name);
         
@@ -152,7 +152,7 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
 
   const handleCopyAllIds = async () => {
     if (selectedFiles.length === 0) {
-      alert('No images selected to copy IDs');
+      alert('No clips selected to copy IDs');
       return;
     }
     
@@ -210,22 +210,22 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="video/*"
             multiple
             onChange={handleFileSelect}
             className={styles.fileInput}
           />
           <p className={styles.fileHint}>
-            Supported formats: JPG, PNG, GIF, WebP (Max size: 30MB per file)
+            Supported formats: MP4, WebM, MOV, AVI (Max size: 2GB per file)
             <br />
-            You can select multiple images at once
+            You can select multiple videos at once
           </p>
         </div>
         
         {selectedFiles.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <strong style={{ color: '#333' }}>Selected Images ({selectedFiles.length}):</strong>
+              <strong style={{ color: '#333' }}>Selected Clips ({selectedFiles.length}):</strong>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   type="button"
@@ -290,9 +290,8 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
                     opacity: fileWithId.status === 'error' ? 0.7 : 1
                   }}
                 >
-                  <img
+                  <video
                     src={fileWithId.previewUrl}
-                    alt={fileWithId.file.name}
                     style={{
                       width: '100%',
                       height: '100px',
@@ -300,6 +299,8 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
                       borderRadius: '4px',
                       display: 'block'
                     }}
+                    muted
+                    preload="metadata"
                   />
                   <div style={{
                     marginTop: '4px',
@@ -354,7 +355,7 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
                         justifyContent: 'center',
                         padding: 0
                       }}
-                      title="Remove this image"
+                      title="Remove this clip"
                     >
                       ×
                     </button>
@@ -384,11 +385,12 @@ const ImageCreate: React.FC<ImageCreateProps> = ({ onUploadSuccess }) => {
         >
           {uploading 
             ? `Uploading ${currentUploadIndex !== null ? `${currentUploadIndex + 1}/${selectedFiles.length}` : ''}...` 
-            : `Upload ${selectedFiles.length} Image${selectedFiles.length !== 1 ? 's' : ''}`}
+            : `Upload ${selectedFiles.length} Clip${selectedFiles.length !== 1 ? 's' : ''}`}
         </button>
       </form>
     </div>
   );
 };
 
-export default ImageCreate;
+export default ClipCreate;
+

@@ -8,6 +8,8 @@ import MatchCreate from './components/matches/MatchCreate';
 import MatchGallery from './components/matches/MatchGallery';
 import BundleGallery from './components/bundles/BundleGallery';
 import BundleCreate from './components/bundles/BundleCreate';
+import ClipCreate from './components/clips/ClipCreate';
+import ClipGallery from './components/clips/ClipGallery';
 import Notification from './components/common/Notification';
 import logoImage from './assets/3i.png';
 import ItemListIcon from './components/icons/ItemListIcon';
@@ -130,6 +132,25 @@ const App: React.FC = () => {
           gap: 0,
           width: '100%'
         }}>
+          {/* CLIP Section */}
+          <Expandable 
+            title="CLIP"
+            icon={<BundleListIcon color="#333" />}
+          >
+            <Expandable 
+              title="NEW"
+              icon={<MatchAddIcon color="#333" />}
+          >
+            <ClipCreate onUploadSuccess={() => {}} />
+          </Expandable>
+          
+          <Expandable 
+              title="LIST" 
+              icon={<ItemListIcon color="#333" />}
+          >
+            <ClipGallery />
+            </Expandable>
+          </Expandable>
           {/* ITEM Section */}
           <Expandable 
             title="ITEM"
