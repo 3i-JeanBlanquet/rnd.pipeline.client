@@ -1,34 +1,132 @@
-import React, { useState } from 'react';
-import { BundleData, bundleService, imageService } from '../../services';
+import React, { useState, useEffect, useMemo } from 'react';
+import { BundleData, bundleService, imageService, ApiError } from '../../services';
 import { ImageData } from '../../models';
 import ImageViewerModal from '../images/ImageViewerModal';
 import BundleRow from './BundleRow';
 import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
 import { downloadBundleAsZip } from '../../utils/bundleDownload';
+import BundleSearchFilterPanel from '../common/BundleSearchFilterPanel';
 import styles from './BundleGallery.module.css';
 
 interface BundleGalleryProps {
-  bundles: BundleData[];
-  loading: boolean;
-  error: string | null;
-  onRefresh: () => void;
   onDeleteBundle?: (id: string) => void;
   onShowProcessingNotification?: (bundleId: string) => void;
 }
 
 const BundleGallery: React.FC<BundleGalleryProps> = ({ 
-  bundles, 
-  loading, 
-  error, 
-  onRefresh,
   onDeleteBundle,
   onShowProcessingNotification
 }) => {
+  const [bundles, setBundles] = useState<BundleData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Filter and sort state
+  const [bundleIds, setBundleIds] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'updatedAt' | '_id'>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [selectedBundle, setSelectedBundle] = useState<BundleData | null>(null);
   const [expandedBundles, setExpandedBundles] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState<string | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
+
+  // Helper function to parse IDs string into array
+  const parseIdsString = (idsString: string): string[] => {
+    if (!idsString || idsString.trim() === '') return [];
+    return idsString
+      .split(/[,\n]/)
+      .map(id => id.trim())
+      .filter(id => id.length > 0);
+  };
+
+  // Fetch bundles
+  const fetchBundles = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await bundleService.getBundles();
+      console.log('Bundles API Response:', response);
+      
+      // Handle different response structures
+      let bundlesData = response.data;
+      let bundlesList: BundleData[] = [];
+      
+      if (Array.isArray(bundlesData)) {
+        bundlesList = bundlesData;
+      } else if (bundlesData && typeof bundlesData === 'object' && 'items' in bundlesData && Array.isArray((bundlesData as any).items)) {
+        bundlesList = (bundlesData as any).items;
+      } else if (bundlesData && typeof bundlesData === 'object' && 'data' in bundlesData && Array.isArray((bundlesData as any).data)) {
+        bundlesList = (bundlesData as any).data;
+      } else {
+        console.warn('Unexpected bundles response structure:', bundlesData);
+        bundlesList = [];
+      }
+      
+      setBundles(bundlesList);
+    } catch (err) {
+      console.error('Failed to fetch bundles:', err);
+      const apiError = err as ApiError;
+      setError(`Failed to fetch bundles: ${apiError.message}`);
+      setBundles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch bundles on mount
+  useEffect(() => {
+    fetchBundles();
+  }, []);
+
+  // Filter, sort, and paginate bundles
+  const filteredAndSortedBundles = useMemo(() => {
+    let result = [...bundles];
+    
+    // Filter by bundle IDs
+    const bundleIdsList = parseIdsString(bundleIds);
+    if (bundleIdsList.length > 0) {
+      result = result.filter(bundle => bundleIdsList.includes(bundle._id));
+    }
+    
+    // Sort bundles
+    result.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+      
+      if (sortBy === 'createdAt') {
+        aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      } else if (sortBy === 'updatedAt') {
+        aValue = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+        bValue = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+      } else if (sortBy === '_id') {
+        aValue = a._id;
+        bValue = b._id;
+      }
+      
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+    
+    return result;
+  }, [bundles, bundleIds, sortBy, sortOrder]);
+
+  // Paginate bundles
+  const paginatedBundles = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredAndSortedBundles.slice(startIndex, endIndex);
+  }, [filteredAndSortedBundles, page, limit]);
+
+  // Handle limit change
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit);
+    setPage(1);
+  };
 
   const handleBundleClick = (bundle: BundleData) => {
     setSelectedBundle(bundle);
@@ -113,14 +211,62 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
   return (
     <>
       <div className={styles.container}>
-        <div className={styles.refreshButton}>
-          <button
-            onClick={onRefresh}
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : 'Refresh'}
-          </button>
-        </div>
+        {/* Search and Filter Panel */}
+        <BundleSearchFilterPanel
+          bundleIds={bundleIds}
+          onBundleIdsChange={(value) => { setBundleIds(value); setPage(1); }}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
+          page={page}
+          limit={limit}
+          onLimitChange={handleLimitChange}
+          loading={loading}
+          itemCount={filteredAndSortedBundles.length}
+          onApplyFilters={() => { setPage(1); fetchBundles(); }}
+        />
+
+        {/* Pagination Controls */}
+        {!loading && filteredAndSortedBundles.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '10px' }}>
+            <div style={{ fontSize: '14px', color: '#666' }}>
+              Showing {((page - 1) * limit) + 1} - {Math.min(page * limit, filteredAndSortedBundles.length)} of {filteredAndSortedBundles.length} bundles
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                disabled={page === 1 || loading}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: page === 1 ? '#6c757d' : '#666',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: page === 1 ? 'not-allowed' : 'pointer',
+                  opacity: page === 1 ? 0.6 : 1
+                }}
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setPage(prev => prev + 1)}
+                disabled={page * limit >= filteredAndSortedBundles.length || loading}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: page * limit >= filteredAndSortedBundles.length ? '#6c757d' : '#666',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: page * limit >= filteredAndSortedBundles.length ? 'not-allowed' : 'pointer',
+                  opacity: page * limit >= filteredAndSortedBundles.length ? 0.6 : 1
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className={styles.errorMessage}>
@@ -132,13 +278,13 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
           <div className={styles.loadingMessage}>
             Loading bundles...
           </div>
-        ) : !Array.isArray(bundles) || bundles.length === 0 ? (
+        ) : paginatedBundles.length === 0 ? (
           <div className={styles.emptyMessage}>
             No bundles found.
           </div>
         ) : (
           <div className={styles.bundleList}>
-            {bundles.map((bundle) => (
+            {paginatedBundles.map((bundle) => (
               <BundleRow
                 key={bundle._id}
                 bundle={bundle}
@@ -149,7 +295,7 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                 onImageClick={handleImageClick}
                 onDownloadZip={handleDownloadBundleAsZip}
                 downloading={downloading}
-                onRefresh={onRefresh}
+                onRefresh={fetchBundles}
                 onShowProcessingNotification={onShowProcessingNotification}
               />
             ))}
