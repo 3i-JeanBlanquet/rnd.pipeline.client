@@ -19,8 +19,8 @@ const App: React.FC = () => {
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [showNotification, setShowNotification] = useState(false);
 
-  const showProcessingNotification = (bundleId: string) => {
-    setNotificationMessage(`Bundle ${bundleId} is already being processed`);
+  const showProcessingNotification = (_bundleId: string) => {
+    setNotificationMessage(`The request is already being processed`);
     setShowNotification(true);
   };
 

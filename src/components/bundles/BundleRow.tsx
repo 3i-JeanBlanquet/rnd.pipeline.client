@@ -71,10 +71,18 @@ const BundleRow: React.FC<BundleRowProps> = ({
 
   // Helper function to check if response indicates PROCESSING status
   const isProcessingResponse = (response: ApiResponse<any>): boolean => {
-    // Check if response data contains msgCode field with "PROCESSING"
-    // Response structure: {msgCode: "PROCESSING", data: {}, code: 200}
+    // Check for response structure: {"resultCd":200,"resultMsg":"OK","data":{"msgCode":"PROCESSING"}}
     if (response.data && typeof response.data === 'object') {
       const data = response.data as any;
+      
+      // Check nested data structure: response.data.data.msgCode
+      if (data.data && typeof data.data === 'object') {
+        if (data.data.msgCode === 'PROCESSING' || data.data.msgCode === 'processing') {
+          return true;
+        }
+      }
+      
+      // Also check direct msgCode in response.data (for backward compatibility)
       if (data.msgCode === 'PROCESSING' || data.msgCode === 'processing') {
         return true;
       }

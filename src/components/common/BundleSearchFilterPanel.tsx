@@ -133,3 +133,4 @@ const BundleSearchFilterPanel: React.FC<BundleSearchFilterPanelProps> = ({
 };
 
 export default BundleSearchFilterPanel;
+
