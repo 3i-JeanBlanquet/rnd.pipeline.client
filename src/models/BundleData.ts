@@ -9,6 +9,7 @@ export interface BundleData {
   _id: string;
   id: string;
   itemIds: string[];
+  textureFilenames:string[];
   // itemId -> closest itemId -> score
   nearestItems: Map<string, INearestItem[]>;
   featureStatus: ProcessingStatus;

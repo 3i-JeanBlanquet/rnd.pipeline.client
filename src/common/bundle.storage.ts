@@ -1,5 +1,5 @@
 export class BundleStorage{
-  constructor(private _id:string){}
+  constructor(private _id:string, private _texturesfiles:string[] = []){}
   
   public getFeaturesDir():string{
     return `bundles/${this._id}/features`;
@@ -37,6 +37,10 @@ export class BundleStorage{
     return `bundles/${this._id}/3d/cameras.json`;
   }
 
+  public getVpsFile():string{
+    return `bundles/${this._id}/3d/vps.json`;
+  }
+
   public get3DMeshFile():string{
     return `bundles/${this._id}/3d/mesh.ply`;
   }
@@ -45,12 +49,17 @@ export class BundleStorage{
     return `bundles/${this._id}/3d/textured_mesh.obj`;
   }
 
-  public get3DTexture00File():string{
-    return `bundles/${this._id}/3d/textured_mesh_material0000_map_Kd.png`;
+  public get3DDir():string{
+    return `bundles/${this._id}/3d`;
   }
 
-  public get3DTexture01File():string{
-    return `bundles/${this._id}/3d/textured_mesh_material0001_map_Kd.png`;
+  public get3DTextureFiles():string[]{
+    const result = new Array<string>();
+    let i = 0;
+    this._texturesfiles.forEach((textureFile:string)=>{
+      result.push(`bundles/${this._id}/3d/${textureFile}`);
+    });
+    return result;
   }
 
   public get3DMeshMaterialFile():string{
