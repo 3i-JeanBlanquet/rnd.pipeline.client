@@ -79,6 +79,40 @@ export class ImageService {
     return this.api.uploadFile<ImageData>(`/items/${itemId}`, file);
   }
 
+  async createIntent(itemId: string, extension: string) {
+    return this.api.post<{ data:{url: string; id: string} }>(`/items/${itemId}/intent`, {
+      id: itemId,
+      extension
+    });
+  }
+
+  async confirmUpload(itemId: string) {
+    return this.api.post<ImageData>(`/items/${itemId}/confirm`, {
+      id: itemId
+    });
+  }
+
+  async uploadToS3Url(url: string, file: File): Promise<void> {
+    
+    let body: File | ArrayBuffer = file;
+    let headers: Record<string, string> | undefined = undefined;
+    
+    const response = await fetch(url, {
+      method: 'PUT',
+      body: body,
+      headers: headers
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => response.statusText);
+      throw {
+        message: `Failed to upload to S3: ${response.status} ${errorText}`,
+        status: response.status,
+        code: 'S3_UPLOAD_ERROR'
+      };
+    }
+  }
+
   async updateImage(id: string, imageData: Partial<ImageData>) {
     return this.api.put<ImageData>(`/items/${id}`, imageData);
   }

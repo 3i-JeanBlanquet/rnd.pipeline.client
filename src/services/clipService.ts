@@ -8,6 +8,39 @@ export class ClipService {
     return this.api.uploadClipFile<ClipData>(`/clips/${clipId}`, file);
   }
 
+  async createIntent(clipId: string, extension: string) {
+    return this.api.post<{ data: { url: string; id: string } }>(`/clips/${clipId}/intent`, {
+      id: clipId,
+      extension
+    });
+  }
+
+  async confirmUpload(clipId: string) {
+    return this.api.post<ClipData>(`/clips/${clipId}/confirm`, {
+      id: clipId
+    });
+  }
+
+  async uploadToS3Url(url: string, file: File): Promise<void> {
+    let body: File | ArrayBuffer = file;
+    let headers: Record<string, string> | undefined = undefined;
+    
+    const response = await fetch(url, {
+      method: 'PUT',
+      body: body,
+      headers: headers
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => response.statusText);
+      throw {
+        message: `Failed to upload to S3: ${response.status} ${errorText}`,
+        status: response.status,
+        code: 'S3_UPLOAD_ERROR'
+      };
+    }
+  }
+
   async getClips(request?: GetClipsRequest) {
     // Build query string from request parameters
     const params = new URLSearchParams();

@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import Expandable from './components/common/Expandable';
-import ImageCreate from './components/images/ImageCreate';
+import ImageCreateIntent from './components/images/ImageCreateIntent';
 import ImageGallery from './components/images/ImageGallery';
 import MatchCreate from './components/matches/MatchCreate';
 import MatchGallery from './components/matches/MatchGallery';
 import BundleGallery from './components/bundles/BundleGallery';
 import BundleCreate from './components/bundles/BundleCreate';
-import ClipCreate from './components/clips/ClipCreate';
 import ClipGallery from './components/clips/ClipGallery';
 import Notification from './components/common/Notification';
 import logoImage from './assets/3i.png';
@@ -14,6 +13,7 @@ import ItemListIcon from './components/icons/ItemListIcon';
 import MatchAddIcon from './components/icons/MatchAddIcon';
 import BundleListIcon from './components/icons/BundleListIcon';
 import styles from './App.module.css';
+import ClipCreateIntent from './components/clips/ClipCreateIntent';
 
 const App: React.FC = () => {
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
@@ -67,13 +67,13 @@ const App: React.FC = () => {
             title="CLIP"
             icon={<BundleListIcon color="#333" />}
           >
-            <Expandable 
+          <Expandable 
               title="NEW"
               icon={<MatchAddIcon color="#333" />}
           >
-            <ClipCreate onUploadSuccess={() => {}} />
+            <ClipCreateIntent onUploadSuccess={() => {}} />
           </Expandable>
-          
+
           <Expandable 
               title="LIST" 
               icon={<ItemListIcon color="#333" />}
@@ -86,11 +86,11 @@ const App: React.FC = () => {
             title="ITEM"
             icon={<BundleListIcon color="#333" />}
           >
-            <Expandable 
+          <Expandable 
               title="NEW"
               icon={<MatchAddIcon color="#333" />}
           >
-            <ImageCreate onUploadSuccess={() => {}} />
+            <ImageCreateIntent onUploadSuccess={() => {}} />
           </Expandable>
           
           <Expandable 

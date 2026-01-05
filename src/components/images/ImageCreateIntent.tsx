@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { clipService, ApiError } from '../../services';
-import styles from './ClipCreate.module.css';
+import { imageService, ApiError } from '../../services';
+import styles from './ImageCreate.module.css';
 
-interface ClipCreateProps {
+interface ImageCreateIntentProps {
   onUploadSuccess: () => void;
 }
 
@@ -10,11 +10,12 @@ interface FileWithId {
   file: File;
   id: string;
   previewUrl: string;
-  status: 'pending' | 'uploading' | 'success' | 'error';
+  status: 'pending' | 'intent' | 'uploading' | 'confirming' | 'success' | 'error';
   error?: string;
+  uploadUrl?: string;
 }
 
-const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
+const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }) => {
   const [uploading, setUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileWithId[]>([]);
   const [currentUploadIndex, setCurrentUploadIndex] = useState<number | null>(null);
@@ -30,6 +31,11 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
     });
   };
 
+  const getFileExtension = (fileName: string): string => {
+    const parts = fileName.split('.');
+    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : 'jpg';
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -39,14 +45,14 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
 
     files.forEach((file) => {
       // Validate file type
-      if (!file.type.startsWith('video/')) {
-        errors.push(`${file.name}: Please select a valid video file`);
+      if (!file.type.startsWith('image/')) {
+        errors.push(`${file.name}: Please select a valid image file`);
         return;
       }
       
-      // Validate file size (max 2GB for videos)
-      if (file.size > 2 * 1024 * 1024 * 1024) {
-        errors.push(`${file.name}: File size must be less than 2GB`);
+      // Validate file size (max 30MB)
+      if (file.size > 30 * 1024 * 1024) {
+        errors.push(`${file.name}: File size must be less than 30MB`);
         return;
       }
 
@@ -87,23 +93,45 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
     for (let i = 0; i < selectedFiles.length; i++) {
       const fileWithId = selectedFiles[i];
       
-      // Update status to uploading
-      setCurrentUploadIndex(i);
-      setSelectedFiles(prev => prev.map((f, idx) => 
-        idx === i ? { ...f, status: 'uploading' } : f
-      ));
-
       try {
-        console.log('Uploading clip:', {
+        // Step 1: Create intent
+        setCurrentUploadIndex(i);
+        setSelectedFiles(prev => prev.map((f, idx) => 
+          idx === i ? { ...f, status: 'intent' } : f
+        ));
+
+        console.log('Creating upload intent:', {
           fileName: fileWithId.file.name,
-          fileSize: fileWithId.file.size,
-          fileType: fileWithId.file.type,
-          clipId: fileWithId.id
+          itemId: fileWithId.id,
+          extension: getFileExtension(fileWithId.file.name)
         });
+
+        const extension = getFileExtension(fileWithId.file.name);
+        const intentResponse = await imageService.createIntent(fileWithId.id, extension);
+        const uploadUrl = intentResponse.data.data.url;
+
+        console.log('Intent created, upload URL:', uploadUrl);
+
+        // Update with upload URL
+        setSelectedFiles(prev => prev.map((f, idx) => 
+          idx === i ? { ...f, status: 'uploading', uploadUrl } : f
+        ));
+
+        // Step 2: Upload file to S3
+        console.log('Uploading file to S3:', fileWithId.file.name);
+        await imageService.uploadToS3Url(uploadUrl, fileWithId.file);
         
-        await clipService.uploadClip(fileWithId.file, fileWithId.id);
+        console.log('S3 upload successful:', fileWithId.file.name);
+
+        // Step 3: Confirm upload
+        setSelectedFiles(prev => prev.map((f, idx) => 
+          idx === i ? { ...f, status: 'confirming' } : f
+        ));
+
+        console.log('Confirming upload:', fileWithId.id);
+        await imageService.confirmUpload(fileWithId.id);
         
-        console.log('Upload successful:', fileWithId.file.name);
+        console.log('Upload confirmed:', fileWithId.file.name);
         
         // Update status to success
         setSelectedFiles(prev => prev.map((f, idx) => 
@@ -152,7 +180,7 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
 
   const handleCopyAllIds = async () => {
     if (selectedFiles.length === 0) {
-      alert('No clips selected to copy IDs');
+      alert('No images selected to copy IDs');
       return;
     }
     
@@ -173,14 +201,35 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
 
   const getStatusBadge = (status: FileWithId['status']) => {
     switch (status) {
+      case 'intent':
+        return <span style={{ color: '#007bff', fontSize: '11px' }}>🔑 Creating intent...</span>;
       case 'uploading':
-        return <span style={{ color: '#007bff', fontSize: '11px' }}>⏳ Uploading...</span>;
+        return <span style={{ color: '#007bff', fontSize: '11px' }}>⏳ Uploading to S3...</span>;
+      case 'confirming':
+        return <span style={{ color: '#007bff', fontSize: '11px' }}>✓ Confirming...</span>;
       case 'success':
         return <span style={{ color: '#28a745', fontSize: '11px' }}>✓ Success</span>;
       case 'error':
         return <span style={{ color: '#dc3545', fontSize: '11px' }}>✗ Error</span>;
       default:
         return <span style={{ color: '#6c757d', fontSize: '11px' }}>⏸ Pending</span>;
+    }
+  };
+
+  const getStatusText = (status: FileWithId['status']) => {
+    switch (status) {
+      case 'intent':
+        return 'Creating intent...';
+      case 'uploading':
+        return 'Uploading to S3...';
+      case 'confirming':
+        return 'Confirming...';
+      case 'success':
+        return 'Success';
+      case 'error':
+        return 'Error';
+      default:
+        return 'Pending';
     }
   };
 
@@ -210,22 +259,24 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
           <input
             ref={fileInputRef}
             type="file"
-            accept="video/*"
+            accept="image/*"
             multiple
             onChange={handleFileSelect}
             className={styles.fileInput}
           />
           <p className={styles.fileHint}>
-            Supported formats: MP4, WebM, MOV, AVI (Max size: 2GB per file)
+            Supported formats: JPG, PNG, GIF, WebP (Max size: 30MB per file)
             <br />
-            You can select multiple videos at once
+            You can select multiple images at once
+            <br />
+            <strong>Upload Flow: Intent → S3 Upload → Confirm</strong>
           </p>
         </div>
         
         {selectedFiles.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <strong style={{ color: '#333' }}>Selected Clips ({selectedFiles.length}):</strong>
+              <strong style={{ color: '#333' }}>Selected Images ({selectedFiles.length}):</strong>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   type="button"
@@ -290,8 +341,9 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
                     opacity: fileWithId.status === 'error' ? 0.7 : 1
                   }}
                 >
-                  <video
+                  <img
                     src={fileWithId.previewUrl}
+                    alt={fileWithId.file.name}
                     style={{
                       width: '100%',
                       height: '100px',
@@ -299,8 +351,6 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
                       borderRadius: '4px',
                       display: 'block'
                     }}
-                    muted
-                    preload="metadata"
                   />
                   <div style={{
                     marginTop: '4px',
@@ -355,7 +405,7 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
                         justifyContent: 'center',
                         padding: 0
                       }}
-                      title="Remove this clip"
+                      title="Remove this image"
                     >
                       ×
                     </button>
@@ -372,7 +422,7 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
                 fontSize: '12px',
                 color: '#0066cc'
               }}>
-                Uploading {currentUploadIndex + 1} of {selectedFiles.length}...
+                Uploading {currentUploadIndex + 1} of {selectedFiles.length}... ({getStatusText(selectedFiles[currentUploadIndex]?.status || 'pending')})
               </div>
             )}
           </div>
@@ -385,12 +435,12 @@ const ClipCreate: React.FC<ClipCreateProps> = ({ onUploadSuccess }) => {
         >
           {uploading 
             ? `Uploading ${currentUploadIndex !== null ? `${currentUploadIndex + 1}/${selectedFiles.length}` : ''}...` 
-            : `Upload ${selectedFiles.length} Clip${selectedFiles.length !== 1 ? 's' : ''}`}
+            : `Upload ${selectedFiles.length} Image${selectedFiles.length !== 1 ? 's' : ''}`}
         </button>
       </form>
     </div>
   );
 };
 
-export default ClipCreate;
+export default ImageCreateIntent;
 
