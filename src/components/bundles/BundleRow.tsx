@@ -34,6 +34,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
   const [depthLoading, setDepthLoading] = useState(false);
   const [reconstructionLoading, setReconstructionLoading] = useState(false);
   const [meshLoading, setMeshLoading] = useState(false);
+  const [floorplanLoading, setFloorplanLoading] = useState(false);
   const [matchesLoading, setMatchesLoading] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
@@ -215,6 +216,29 @@ const BundleRow: React.FC<BundleRowProps> = ({
       alert('Failed to run mesh processing. Please try again.');
     } finally {
       setMeshLoading(false);
+    }
+  };
+
+  const handleRunFloorplan = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFloorplanLoading(true);
+    try {
+      const response = await bundleService.runFloorplan(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+      console.log('Floorplan request submitted successfully');
+      setTimeout(() => {
+        onRefresh();
+      }, 1000);
+      }
+    } catch (err) {
+      console.error('Floorplan request failed:', err);
+      alert('Failed to run floorplan processing. Please try again.');
+    } finally {
+      setFloorplanLoading(false);
     }
   };
 
@@ -406,6 +430,18 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   letterSpacing: '0.3px'
                 }}>
                   MES: {bundle.meshStatus}
+                </span>
+                <span style={{
+                  padding: '2px 6px',
+                  borderRadius: '3px',
+                  fontSize: '9px',
+                  fontWeight: '600',
+                  backgroundColor: getStatusColor(bundle.floorplanStatus),
+                  color: getStatusTextColor(bundle.floorplanStatus),
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.3px'
+                }}>
+                  FLP: {bundle.floorplanStatus}
                 </span>
                 <button
                   onClick={handleRefresh}
@@ -785,6 +821,25 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   title="Run mesh processing"
                 >
                   {meshLoading ? '⏳' : '▶'} Mesh
+                </button>
+                <button
+                  onClick={handleRunFloorplan}
+                  disabled={floorplanLoading}
+                  style={{
+                    padding: '6px 10px',
+                    backgroundColor: floorplanLoading ? '#6c757d' : '#666',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: floorplanLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '11px',
+                    fontWeight: '500',
+                    opacity: floorplanLoading ? 0.6 : 1,
+                    whiteSpace: 'nowrap'
+                  }}
+                  title="Run floorplan processing"
+                >
+                  {floorplanLoading ? '⏳' : '▶'} Floor
                 </button>
                 {/* <button
                   onClick={handleRunAll}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BundleData, bundleService, imageService, ApiError } from '../../services';
 import { ImageData } from '../../models';
 import ImageViewerModal from '../images/ImageViewerModal';
@@ -20,6 +20,14 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
   const [bundles, setBundles] = useState<BundleData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pagination, setPagination] = useState<{
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  } | null>(null);
   
   // Filter and sort state
   const [bundleIds, setBundleIds] = useState<string>('');
@@ -43,18 +51,23 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
   };
 
   // Fetch bundles
-  const fetchBundles = async () => {
+  const fetchBundles = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await bundleService.getBundles();
+      const response = await bundleService.getBundles(page, limit);
       console.log('Bundles API Response:', response);
       
       // Handle different response structures
       let bundlesData = response.data;
       let bundlesList: BundleData[] = [];
+      let paginationData = null;
       
-      if (Array.isArray(bundlesData)) {
+      // Check if response.data is the full response object with data and pagination
+      if (bundlesData && typeof bundlesData === 'object' && 'data' in bundlesData && 'pagination' in bundlesData) {
+        bundlesList = Array.isArray((bundlesData as any).data) ? (bundlesData as any).data : [];
+        paginationData = (bundlesData as any).pagination;
+      } else if (Array.isArray(bundlesData)) {
         bundlesList = bundlesData;
       } else if (bundlesData && typeof bundlesData === 'object' && 'items' in bundlesData && Array.isArray((bundlesData as any).items)) {
         bundlesList = (bundlesData as any).items;
@@ -66,20 +79,24 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
       }
       
       setBundles(bundlesList);
+      if (paginationData) {
+        setPagination(paginationData);
+      }
     } catch (err) {
       console.error('Failed to fetch bundles:', err);
       const apiError = err as ApiError;
       setError(`Failed to fetch bundles: ${apiError.message}`);
       setBundles([]);
+      setPagination(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit]);
 
-  // Fetch bundles on mount
+  // Fetch bundles on mount and when page/limit changes
   useEffect(() => {
     fetchBundles();
-  }, []);
+  }, [fetchBundles]);
 
   // Filter, sort, and paginate bundles
   const filteredAndSortedBundles = useMemo(() => {
@@ -115,12 +132,8 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
     return result;
   }, [bundles, bundleIds, sortBy, sortOrder]);
 
-  // Paginate bundles
-  const paginatedBundles = useMemo(() => {
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    return filteredAndSortedBundles.slice(startIndex, endIndex);
-  }, [filteredAndSortedBundles, page, limit]);
+  // Use filtered bundles directly (server-side pagination)
+  const paginatedBundles = filteredAndSortedBundles;
 
   // Handle limit change
   const handleLimitChange = (newLimit: number) => {
@@ -228,38 +241,42 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
         />
 
         {/* Pagination Controls */}
-        {!loading && filteredAndSortedBundles.length > 0 && (
+        {!loading && paginatedBundles.length > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '10px' }}>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              Showing {((page - 1) * limit) + 1} - {Math.min(page * limit, filteredAndSortedBundles.length)} of {filteredAndSortedBundles.length} bundles
+              {pagination ? (
+                <>Showing {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} bundles (Page {pagination.page} of {pagination.totalPages})</>
+              ) : (
+                <>Showing {paginatedBundles.length} bundles</>
+              )}
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                disabled={page === 1 || loading}
+                disabled={!pagination?.hasPrevPage || loading}
                 style={{
                   padding: '8px 16px',
-                  backgroundColor: page === 1 ? '#6c757d' : '#666',
+                  backgroundColor: !pagination?.hasPrevPage ? '#6c757d' : '#666',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
-                  cursor: page === 1 ? 'not-allowed' : 'pointer',
-                  opacity: page === 1 ? 0.6 : 1
+                  cursor: !pagination?.hasPrevPage ? 'not-allowed' : 'pointer',
+                  opacity: !pagination?.hasPrevPage ? 0.6 : 1
                 }}
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(prev => prev + 1)}
-                disabled={page * limit >= filteredAndSortedBundles.length || loading}
+                disabled={!pagination?.hasNextPage || loading}
                 style={{
                   padding: '8px 16px',
-                  backgroundColor: page * limit >= filteredAndSortedBundles.length ? '#6c757d' : '#666',
+                  backgroundColor: !pagination?.hasNextPage ? '#6c757d' : '#666',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
-                  cursor: page * limit >= filteredAndSortedBundles.length ? 'not-allowed' : 'pointer',
-                  opacity: page * limit >= filteredAndSortedBundles.length ? 0.6 : 1
+                  cursor: !pagination?.hasNextPage ? 'not-allowed' : 'pointer',
+                  opacity: !pagination?.hasNextPage ? 0.6 : 1
                 }}
               >
                 Next

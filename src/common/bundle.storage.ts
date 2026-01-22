@@ -45,6 +45,10 @@ export class BundleStorage{
     return `bundles/${this._id}/3d/mesh.ply`;
   }
 
+  public getPointCloudFile():string{
+    return `bundles/${this._id}/3d/pointcloud.ply`;
+  }
+
   public get3DMeshGeometryFile():string{
     return `bundles/${this._id}/3d/textured_mesh.obj`;
   }
@@ -55,7 +59,6 @@ export class BundleStorage{
 
   public get3DTextureFiles():string[]{
     const result = new Array<string>();
-    let i = 0;
     this._texturesfiles.forEach((textureFile:string)=>{
       result.push(`bundles/${this._id}/3d/${textureFile}`);
     });

@@ -345,6 +345,11 @@ const createBundleFileList = (bundle: BundleData): Array<{ url: string; path: st
     name: 'textured_mesh.obj'
   });
   files.push({
+    url: bundleService.getPointCloudFileUrl(bundle),
+    path: '3d/pointcloud.ply',
+    name: 'pointcloud.ply'
+  });
+  files.push({
     url: bundleService.get3DMeshMaterialUrl(bundle),
     path: '3d/textured_mesh.mtl',
     name: 'textured_mesh.mtl'

@@ -45,7 +45,7 @@ const ClipRow: React.FC<ClipRowProps> = ({
         requestId: currentClip._id
       });
       
-      await clipService.runProcess(currentClip._id, currentClip._id, true);
+      await clipService.runProcess(currentClip._id, true);
       console.log('Process request submitted successfully');
       
       // Update clip status optimistically

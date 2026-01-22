@@ -12,11 +12,14 @@ export interface BundleData {
   textureFilenames:string[];
   // itemId -> closest itemId -> score
   nearestItems: Map<string, INearestItem[]>;
-  featureStatus: ProcessingStatus;
-  matchStatus: ProcessingStatus;
-  depthStatus: ProcessingStatus;
-  reconstruction: ProcessingStatus;
-  meshStatus: ProcessingStatus;
+  
+  featureStatus:ProcessingStatus;
+  matchStatus:ProcessingStatus;
+  depthStatus:ProcessingStatus;
+  reconstruction:ProcessingStatus;
+  meshStatus:ProcessingStatus;
+  floorplanStatus:ProcessingStatus;
+
   createdAt?: Date;
   updatedAt?: Date;
 }

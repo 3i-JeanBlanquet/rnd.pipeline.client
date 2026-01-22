@@ -63,10 +63,9 @@ export class ClipService {
     return this.api.get<ClipData>(`/clips/${id}`);
   }
 
-  async runProcess(clipId: string, requestId: string, force: boolean = true) {
+  async runProcess(clipId: string, force: boolean = true) {
     const requestBody = {
       itemId: clipId,
-      requestId,
       force
     };
     

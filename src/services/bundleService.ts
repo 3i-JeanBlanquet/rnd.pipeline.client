@@ -77,6 +77,13 @@ export class BundleService {
   }
 
   // Helper method to get S3 URL for 3D mesh material file
+  getPointCloudFileUrl(bundleData: BundleData): string {
+    const bundleStorage = new BundleStorage(bundleData._id,bundleData.textureFilenames);
+    const materialPath = bundleStorage.getPointCloudFile();
+    return `${config.s3BucketUrl}/${materialPath}`;
+  }
+
+  // Helper method to get S3 URL for 3D mesh material file
   get3DMeshMaterialUrl(bundleData: BundleData): string {
     const bundleStorage = new BundleStorage(bundleData._id,bundleData.textureFilenames);
     const materialPath = bundleStorage.get3DMeshMaterialFile();
@@ -102,8 +109,13 @@ export class BundleService {
     }));
   }
 
-  async getBundles() {
-    return this.api.get<BundleData[]>('/bundles');
+  async getBundles(page?: number, limit?: number) {
+    const params = new URLSearchParams();
+    if (page !== undefined) params.append('page', page.toString());
+    if (limit !== undefined) params.append('limit', limit.toString());
+    
+    const queryString = params.toString();
+    return this.api.get<BundleData[]>(`/bundles${queryString ? `?${queryString}` : ''}`);
   }
 
   async getBundle(id: string) {
@@ -124,6 +136,10 @@ export class BundleService {
 
   async runMesh(bundleId: string) {
     return this.api.post(`/bundles/${bundleId}/mesh`, {});
+  }
+
+  async runFloorplan(bundleId: string) {
+    return this.api.post(`/bundles/${bundleId}/floorplan`, {});
   }
 
   async runMatches(bundleId: string) {
