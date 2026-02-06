@@ -14,3 +14,4 @@ export const clipService = new ClipService(apiService);
 // Export types and enums
 export type { ApiError, ApiResponse, ImageData, MatchData, MatchDetails, MatchesListResponse, BundleData, ClipData };
 export { ProcessingStatus };
+export { isMultipartIntent } from './clipService';
