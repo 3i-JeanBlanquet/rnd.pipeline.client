@@ -139,7 +139,7 @@ export class BundleService {
   }
 
   async runFloorplan(bundleId: string) {
-    return this.api.post(`/bundles/${bundleId}/floorplan`, {});
+    return this.api.post(`/bundles/${bundleId}/floorplan`, {isForce:true});
   }
 
   async runMatches(bundleId: string) {
