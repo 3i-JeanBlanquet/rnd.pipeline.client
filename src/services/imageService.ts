@@ -79,8 +79,13 @@ export class ImageService {
     return this.api.uploadFile<ImageData>(`/items/${itemId}`, file);
   }
 
+  /** API returns { resultCd, resultMsg, data: { id, urls: string[] } } */
   async createIntent(itemId: string, extension: string) {
-    return this.api.post<{ data:{url: string; id: string} }>(`/items/${itemId}/intent`, {
+    return this.api.post<{
+      resultCd: number;
+      resultMsg: string;
+      data: { id: string; urls: string[] };
+    }>(`/items/${itemId}/intent`, {
       id: itemId,
       extension
     });

@@ -108,7 +108,12 @@ const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }
 
         const extension = getFileExtension(fileWithId.file.name);
         const intentResponse = await imageService.createIntent(fileWithId.id, extension);
-        const uploadUrl = intentResponse.data.data.url;
+        const urls = intentResponse.data.data?.urls;
+        const uploadUrl = Array.isArray(urls) && urls.length > 0 ? urls[0] : undefined;
+
+        if (!uploadUrl) {
+          throw new Error('Intent response did not contain an upload URL');
+        }
 
         console.log('Intent created, upload URL:', uploadUrl);
 
