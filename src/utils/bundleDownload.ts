@@ -362,6 +362,24 @@ const createBundleFileList = (bundle: BundleData): Array<{ url: string; path: st
   bundleService.get3DTextures(bundle).forEach(data=>{
     files.push(data)
   });
+
+  // Floorplan files
+  files.push({
+    url: bundleService.getMeterSchematicFloorplanUrl(bundle),
+    path: 'floorplan/meter.png',
+    name: 'meter.png'
+  });
+  files.push({
+    url: bundleService.getInchSchematicFloorplanUrl(bundle),
+    path: 'floorplan/inch.png',
+    name: 'inch.png'
+  });
+  files.push({
+    url: bundleService.getSchematicUIJsonUrl(bundle),
+    path: 'floorplan/ui_format.json',
+    name: 'ui_format.json'
+  });
+
   return files;
 };
 

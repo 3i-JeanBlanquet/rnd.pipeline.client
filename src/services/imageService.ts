@@ -56,6 +56,11 @@ export class ImageService {
       
       if (request.filter) {
         if (request.filter._id) params.append('filter[_id]', request.filter._id);
+        if (request.filter.ids && request.filter.ids.length > 0) {
+          request.filter.ids.forEach((id) => {
+            params.append('filter[ids][]', id);
+          });
+        }
         if (request.filter.parentId) params.append('filter[parentId]', request.filter.parentId);
         if (request.filter.extension) params.append('filter[extension]', request.filter.extension);
         if (request.filter.tilingStatus) params.append('filter[tilingStatus]', request.filter.tilingStatus);

@@ -35,6 +35,7 @@ const BundleRow: React.FC<BundleRowProps> = ({
   const [reconstructionLoading, setReconstructionLoading] = useState(false);
   const [meshLoading, setMeshLoading] = useState(false);
   const [floorplanLoading, setFloorplanLoading] = useState(false);
+  const [autolevelingLoading, setAutolevelingLoading] = useState(false);
   const [matchesLoading, setMatchesLoading] = useState(false);
   const [refreshLoading, setRefreshLoading] = useState(false);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
@@ -262,6 +263,29 @@ const BundleRow: React.FC<BundleRowProps> = ({
       alert('Failed to run matches processing. Please try again.');
     } finally {
       setMatchesLoading(false);
+    }
+  };
+
+  const handleRunAutoleveling = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAutolevelingLoading(true);
+    try {
+      const response = await bundleService.runAutoleveling(bundle._id);
+      if (isProcessingResponse(response)) {
+        if (onShowProcessingNotification) {
+          onShowProcessingNotification(bundle._id);
+        }
+      } else {
+        console.log('Autoleveling request submitted successfully');
+        setTimeout(() => {
+          onRefresh();
+        }, 1000);
+      }
+    } catch (err) {
+      console.error('Autoleveling request failed:', err);
+      alert('Failed to run autoleveling. Please try again.');
+    } finally {
+      setAutolevelingLoading(false);
     }
   };
 
@@ -840,6 +864,25 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   title="Run floorplan processing"
                 >
                   {floorplanLoading ? '⏳' : '▶'} Floor
+                </button>
+                <button
+                  onClick={handleRunAutoleveling}
+                  disabled={autolevelingLoading}
+                  style={{
+                    padding: '6px 10px',
+                    backgroundColor: autolevelingLoading ? '#6c757d' : '#666',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: autolevelingLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '11px',
+                    fontWeight: '500',
+                    opacity: autolevelingLoading ? 0.6 : 1,
+                    whiteSpace: 'nowrap'
+                  }}
+                  title="Run autoleveling processing"
+                >
+                  {autolevelingLoading ? '⏳' : '▶'} Autoleveling
                 </button>
                 {/* <button
                   onClick={handleRunAll}

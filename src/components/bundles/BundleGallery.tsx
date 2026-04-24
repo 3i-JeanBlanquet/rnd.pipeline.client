@@ -585,6 +585,48 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                     >
                       📄 Mesh Conf
                     </button>
+                    <button
+                      onClick={() => downloadFile(bundleService.getMeterSchematicFloorplanUrl(selectedBundle), `bundle_${selectedBundle._id}_floorplan_meter.png`)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#666',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '11px'
+                      }}
+                    >
+                      📄 Floorplan (meter)
+                    </button>
+                    <button
+                      onClick={() => downloadFile(bundleService.getInchSchematicFloorplanUrl(selectedBundle), `bundle_${selectedBundle._id}_floorplan_inch.png`)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#666',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '11px'
+                      }}
+                    >
+                      📄 Floorplan (inch)
+                    </button>
+                    <button
+                      onClick={() => downloadFile(bundleService.getSchematicUIJsonUrl(selectedBundle), `bundle_${selectedBundle._id}_floorplan_ui_format.json`)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#666',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '11px'
+                      }}
+                    >
+                      📄 Floorplan UI JSON
+                    </button>
                   </div>
                 </div>
 

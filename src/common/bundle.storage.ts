@@ -72,6 +72,18 @@ export class BundleStorage{
   public get3DTexturedConfFile():string{
     return `bundles/${this._id}/3d/textured_mesh.conf`;
   }
+
+  public getMeterSchematicFloorplanFile():string{
+    return `bundles/${this._id}/floorplan/meter.png`;
+  }
+
+  public getInchSchematicFloorplanFile():string{
+    return `bundles/${this._id}/floorplan/inch.png`;
+  }
+
+  public getSchematicUIJson():string{
+    return `bundles/${this._id}/floorplan/ui_format.json`;
+  }
 }
 
 export interface ICamerasDefinition{

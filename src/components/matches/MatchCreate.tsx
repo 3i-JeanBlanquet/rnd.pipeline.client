@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ImageData, ApiError, matchService, imageService, ProcessingStatus } from '../../services';
 import { GetItemsRequest } from '../../models';
 import ImageFallback from '../images/ImageFallback';
@@ -18,15 +18,26 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [filterItemIds, setFilterItemIds] = useState<string>('');
 
-  // Fetch candidate images with featureStatus = PROCESSED
-  const fetchCandidateImages = async () => {
+  // Helper function to parse item IDs from input string
+  const parseItemIds = (idsString: string): string[] => {
+    if (!idsString || idsString.trim() === '') return [];
+    return idsString
+      .split(/[,\n]/)
+      .map(id => id.trim())
+      .filter(id => id.length > 0);
+  };
+
+  // Fetch candidate images with featureStatus = PROCESSED; when filter IDs are set, ask the API for those items
+  const fetchCandidateImages = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
+      const itemIdsList = parseItemIds(filterItemIds);
       const request: GetItemsRequest = {
         limit: 100,
         filter: {
-          featureStatus: ProcessingStatus.PROCESSED
+          featureStatus: ProcessingStatus.PROCESSED,
+          ...(itemIdsList.length > 0 ? { ids: itemIdsList } : {})
         }
       };
       
@@ -59,21 +70,22 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterItemIds]);
 
-  // Fetch images on component mount
+  const isInitialMount = useRef(true);
+
+  // Initial load + refetch from backend when filter IDs change (debounced after first paint)
   useEffect(() => {
-    fetchCandidateImages();
-  }, []);
-
-  // Helper function to parse item IDs from input string
-  const parseItemIds = (idsString: string): string[] => {
-    if (!idsString || idsString.trim() === '') return [];
-    return idsString
-      .split(/[,\n]/)
-      .map(id => id.trim())
-      .filter(id => id.length > 0);
-  };
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      void fetchCandidateImages();
+      return;
+    }
+    const t = window.setTimeout(() => {
+      void fetchCandidateImages();
+    }, 450);
+    return () => window.clearTimeout(t);
+  }, [fetchCandidateImages]);
 
   // Filter images that have a parentId and completed feature status
   const imagesWithFeature = candidateImages.filter(img => 

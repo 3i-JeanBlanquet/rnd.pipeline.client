@@ -28,7 +28,7 @@ function getFileExtension(fileName: string): string {
 }
 
 // S3 multipart: minimum 5MB per part (except the last). We request this many parts so the backend returns exactly that many presigned URLs.
-const S3_MIN_PART_BYTES = 6 * 1024 * 1024; // 5MB
+const S3_MIN_PART_BYTES = 10 * 1024 * 1024; // 5MB
 const MAX_PARTS = 10000;
 
 function buildIntentBody(file: File): { parts?: number; expiresIn?: number } {

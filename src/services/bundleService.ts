@@ -97,6 +97,24 @@ export class BundleService {
     return `${config.s3BucketUrl}/${confPath}`;
   }
 
+  getMeterSchematicFloorplanUrl(bundleData: BundleData): string {
+    const bundleStorage = new BundleStorage(bundleData._id, bundleData.textureFilenames);
+    const path = bundleStorage.getMeterSchematicFloorplanFile();
+    return `${config.s3BucketUrl}/${path}`;
+  }
+
+  getInchSchematicFloorplanUrl(bundleData: BundleData): string {
+    const bundleStorage = new BundleStorage(bundleData._id, bundleData.textureFilenames);
+    const path = bundleStorage.getInchSchematicFloorplanFile();
+    return `${config.s3BucketUrl}/${path}`;
+  }
+
+  getSchematicUIJsonUrl(bundleData: BundleData): string {
+    const bundleStorage = new BundleStorage(bundleData._id, bundleData.textureFilenames);
+    const path = bundleStorage.getSchematicUIJson();
+    return `${config.s3BucketUrl}/${path}`;
+  }
+
   get3DTextures(bundleData: BundleData): {url:string,path:string,name:string}[] {
     if (!bundleData.textureFilenames || bundleData.textureFilenames.length === 0) {
       return [];
@@ -140,6 +158,13 @@ export class BundleService {
 
   async runFloorplan(bundleId: string) {
     return this.api.post(`/bundles/${bundleId}/floorplan`, {isForce:true});
+  }
+
+  async runAutoleveling(bundleId: string) {
+    return this.api.post(`/bundles/${bundleId}/autoleveling`, {
+      isForce: true,
+      hasCallback: false,
+    });
   }
 
   async runMatches(bundleId: string) {
