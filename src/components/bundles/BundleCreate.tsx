@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageData, ApiError, imageService, bundleService } from '../../services';
 import { GetItemsRequest, ItemFilterRequest } from '../../models';
-import ImageFallback from '../images/ImageFallback';
+import { previewPlaceholder } from '../common/previewPlaceholder';
 import ItemSearchFilterPanel from '../common/ItemSearchFilterPanel';
 import styles from './BundleCreate.module.css';
 
@@ -15,7 +15,6 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [popupImage, setPopupImage] = useState<ImageData | null>(null);
 
   // Filter and sort state
@@ -98,16 +97,6 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
   useEffect(() => {
     fetchParentItems();
   }, []);
-
-  const handleImageError = (imageId: string, imageType: string) => {
-    const errorKey = `${imageId}-${imageType}`;
-    setImageErrors(prev => new Set(prev).add(errorKey));
-  };
-
-  const isImageError = (imageId: string, imageType: string): boolean => {
-    const errorKey = `${imageId}-${imageType}`;
-    return imageErrors.has(errorKey);
-  };
 
   const handleToggleSelection = (itemId: string) => {
     const newSelected = new Set(selectedItemIds);
@@ -249,7 +238,6 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
           itemCount={candidateImages.length}
           onApplyFilters={() => {
             fetchParentItems();
-            setImageErrors(new Set()); // Clear image errors on refresh
           }}
         />
 
@@ -573,22 +561,7 @@ const BundleCreate: React.FC<BundleCreateProps> = ({ onCreateSuccess }) => {
                 </div>
               )}
             </div>
-            {isImageError(popupImage._id, 'main') ? (
-              <ImageFallback imageType="Image" size="600px" />
-            ) : (
-              <img
-                src={imageService.getImageUrl(popupImage)}
-                alt={`Image ${popupImage._id}`}
-                onError={() => handleImageError(popupImage._id, 'main')}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '70vh',
-                  objectFit: 'contain',
-                  borderRadius: '4px',
-                  display: 'block'
-                }}
-              />
-            )}
+            {previewPlaceholder('Image', '320px')}
           </div>
         </div>
       )}

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { BundleData, bundleService, imageService, ApiError } from '../../services';
-import { ImageData } from '../../models';
-import ImageViewerModal from '../images/ImageViewerModal';
+import { BundleData, bundleService, ApiError } from '../../services';
 import BundleRow from './BundleRow';
 import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
-import { downloadBundleAsZip } from '../../utils/bundleDownload';
 import BundleSearchFilterPanel from '../common/BundleSearchFilterPanel';
+import { ItemStorage } from '../../common/item.storage';
 import styles from './BundleGallery.module.css';
+
+const itemFolderPath = (itemId: string) => new ItemStorage(itemId, 'jpg').getImageDir();
 
 interface BundleGalleryProps {
   onDeleteBundle?: (id: string) => void;
@@ -37,9 +37,6 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
   const [limit, setLimit] = useState(20);
   const [selectedBundle, setSelectedBundle] = useState<BundleData | null>(null);
   const [expandedBundles, setExpandedBundles] = useState<Set<string>>(new Set());
-  const [downloading, setDownloading] = useState<string | null>(null);
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
-  const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
 
   // Helper function to parse IDs string into array
   const parseIdsString = (idsString: string): string[] => {
@@ -149,16 +146,6 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
     setSelectedBundle(null);
   };
 
-  const handleImageClick = (imageUrl: string, imageId: string) => {
-    setSelectedImageUrl(imageUrl);
-    setSelectedImageId(imageId);
-  };
-
-  const closeImageModal = () => {
-    setSelectedImageUrl(null);
-    setSelectedImageId(null);
-  };
-
   const toggleBundleExpansion = (bundleId: string) => {
     const newExpanded = new Set(expandedBundles);
     if (newExpanded.has(bundleId)) {
@@ -180,46 +167,6 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
     });
   };
 
-
-  // Download a single file
-  const downloadFile = async (url: string, filename: string) => {
-    try {
-      // Set 10 minute timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 600000);
-      
-      try {
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!response.ok) {
-          throw new Error(`Failed to download ${filename}`);
-        }
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(downloadUrl);
-      } catch (error) {
-        clearTimeout(timeoutId);
-        if (error instanceof Error && error.name === 'AbortError') {
-          throw new Error(`Timeout downloading ${filename}`);
-        }
-        throw error;
-      }
-    } catch (error) {
-      console.error(`Error downloading ${filename}:`, error);
-      alert(`Failed to download ${filename}. Please check if the file exists.`);
-    }
-  };
-
-  // Wrapper function to handle downloading state
-  const handleDownloadBundleAsZip = async (bundle: BundleData) => {
-    await downloadBundleAsZip(bundle, setDownloading);
-  };
 
   return (
     <>
@@ -309,9 +256,6 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                 onToggleExpansion={toggleBundleExpansion}
                 onBundleClick={handleBundleClick}
                 onDeleteBundle={onDeleteBundle}
-                onImageClick={handleImageClick}
-                onDownloadZip={handleDownloadBundleAsZip}
-                downloading={downloading}
                 onRefresh={fetchBundles}
                 onShowProcessingNotification={onShowProcessingNotification}
               />
@@ -375,27 +319,6 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
             <div style={{ marginTop: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <h3 style={{ margin: '0', color: '#333' }}>Bundle Details</h3>
-                <button
-                  onClick={() => handleDownloadBundleAsZip(selectedBundle)}
-                  disabled={downloading === selectedBundle._id}
-                  style={{
-                    padding: '8px 16px',
-                    backgroundColor: downloading === selectedBundle._id ? '#6c757d' : '#666',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: downloading === selectedBundle._id ? 'not-allowed' : 'pointer',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    opacity: downloading === selectedBundle._id ? 0.6 : 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                  title="Download all bundle files as ZIP"
-                >
-                  {downloading === selectedBundle._id ? '⏳ Downloading...' : '📦 Download All as ZIP'}
-                </button>
               </div>
               <div style={{ display: 'grid', gap: '10px' }}>
                 <p style={{ margin: '5px 0', fontSize: '14px', color: '#333' }}>
@@ -452,267 +375,49 @@ const BundleGallery: React.FC<BundleGalleryProps> = ({
                 <p style={{ margin: '5px 0', fontSize: '12px', color: '#666' }}>
                   <strong>Updated:</strong> {selectedBundle.updatedAt ? formatDate(selectedBundle.updatedAt) : 'N/A'}
                 </p>
-                
-                {/* Download Individual Files Section */}
-                <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #dee2e6' }}>
-                  <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#333', fontWeight: 'bold' }}>
-                    Download Individual Files:
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DDatabaseUrl(selectedBundle), `bundle_${selectedBundle._id}_data.db`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 3D Database
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DPointsUrl(selectedBundle), `bundle_${selectedBundle._id}_points3D.bin`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 3D Points
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DImagesUrl(selectedBundle), `bundle_${selectedBundle._id}_images.bin`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 3D Images
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DCamerasUrl(selectedBundle), `bundle_${selectedBundle._id}_cameras.bin`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 3D Cameras Bin
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.getCamerasUrl(selectedBundle), `bundle_${selectedBundle._id}_cameras.json`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Cameras JSON
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DMeshUrl(selectedBundle), `bundle_${selectedBundle._id}_mesh.ply`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Mesh PLY
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DMeshGeometryUrl(selectedBundle), `bundle_${selectedBundle._id}_textured_mesh.obj`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Mesh OBJ
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DMeshMaterialUrl(selectedBundle), `bundle_${selectedBundle._id}_textured_mesh.mtl`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Mesh MTL
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.get3DTexturedConfUrl(selectedBundle), `bundle_${selectedBundle._id}_textured_mesh.conf`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Mesh Conf
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.getMeterSchematicFloorplanUrl(selectedBundle), `bundle_${selectedBundle._id}_floorplan_meter.png`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Floorplan (meter)
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.getInchSchematicFloorplanUrl(selectedBundle), `bundle_${selectedBundle._id}_floorplan_inch.png`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Floorplan (inch)
-                    </button>
-                    <button
-                      onClick={() => downloadFile(bundleService.getSchematicUIJsonUrl(selectedBundle), `bundle_${selectedBundle._id}_floorplan_ui_format.json`)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#666',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '11px'
-                      }}
-                    >
-                      📄 Floorplan UI JSON
-                    </button>
-                  </div>
-                </div>
 
                 <div style={{ marginTop: '15px' }}>
-                  <p style={{ margin: '5px 0', fontSize: '12px', color: '#666', fontWeight: 'bold' }}>
-                    Items ({selectedBundle.itemIds.length}):
+                  <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#666', fontWeight: 'bold' }}>
+                    Items ({selectedBundle.itemIds.length})
                   </p>
-                  <div style={{ 
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                    gap: '12px',
-                    padding: '12px',
-                    backgroundColor: '#f8f9fa',
-                    borderRadius: '4px',
-                    maxHeight: '400px',
-                    overflowY: 'auto'
-                  }}>
-                    {selectedBundle.itemIds.map((itemId, index) => {
-                      // Create minimal ImageData for getting image URL
-                      const imageData = { _id: itemId, extension: 'jpg' } as ImageData;
-                      const imageUrl = imageService.getImageUrl(imageData);
-                      
-                      return (
-                        <div
-                          key={index}
+                  {selectedBundle.itemIds.length === 0 ? (
+                    <p style={{ margin: 0, fontSize: '12px', color: '#868e96' }}>No items</p>
+                  ) : (
+                    <ul
+                      style={{
+                        margin: 0,
+                        padding: 0,
+                        listStyle: 'none',
+                        maxHeight: '360px',
+                        overflowY: 'auto',
+                        border: '1px solid #e9ecef',
+                        borderRadius: '4px',
+                        backgroundColor: '#f8f9fa',
+                      }}
+                    >
+                      {selectedBundle.itemIds.map((itemId, i) => (
+                        <li
+                          key={itemId}
                           style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '8px 12px',
-                            backgroundColor: '#fff',
-                            borderRadius: '6px',
+                            padding: '6px 10px',
+                            borderBottom: i < selectedBundle.itemIds.length - 1 ? '1px solid #dee2e6' : 'none',
+                            fontFamily: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
                             fontSize: '11px',
-                            fontFamily: 'monospace',
                             color: '#495057',
-                            border: '1px solid #ced4da',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            wordBreak: 'break-all',
+                            lineHeight: 1.35,
                           }}
-                          title={`Item ID: ${itemId}`}
                         >
-                          <img
-                            src={imageUrl}
-                            alt={`Item ${itemId}`}
-                            onClick={() => handleImageClick(imageUrl, itemId)}
-                            style={{
-                              width: '60px',
-                              height: '60px',
-                              objectFit: 'cover',
-                              borderRadius: '4px',
-                              border: '1px solid #ddd',
-                              cursor: 'pointer',
-                              transition: 'transform 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = 'scale(1)';
-                            }}
-                            onError={(e) => {
-                              // Hide image if it fails to load
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                          <span style={{ fontSize: '11px', wordBreak: 'break-all' }}>
-                            {itemId}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                          {itemFolderPath(itemId)}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Image Viewer Modal */}
-      {selectedImageUrl && selectedImageId && (
-        <ImageViewerModal
-          imageUrl={selectedImageUrl}
-          imageId={selectedImageId}
-          onClose={closeImageModal}
-        />
       )}
     </>
   );

@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { BundleData, imageService, bundleService, ProcessingStatus } from '../../services';
 import { ImageData, GetItemsRequest } from '../../models';
 import { ItemStorage } from '../../common/item.storage';
-import { config } from '../../config/env';
+
+const getItemStorageDir = (img: ImageData): string => {
+  const ext = img.extension || 'jpg';
+  return img.parentId
+    ? new ItemStorage(img._id, ext, img.parentId).getImageDir()
+    : new ItemStorage(img._id, ext).getImageDir();
+};
 
 interface BundleResearchModalProps {
   bundle: BundleData;
@@ -274,9 +280,8 @@ const BundleResearchModal: React.FC<BundleResearchModalProps> = ({
                 overflowY: 'auto'
               }}>
                 {filteredImages.map((image) => {
-                  const imageUrl = imageService.getImageUrl(image);
                   const isSelected = selectedResearchImage?._id === image._id;
-                  
+
                   return (
                     <div
                       key={image._id}
@@ -306,20 +311,23 @@ const BundleResearchModal: React.FC<BundleResearchModalProps> = ({
                         }
                       }}
                     >
-                      <img
-                        src={imageUrl}
-                        alt={image._id}
+                      <div
                         style={{
                           width: '100%',
-                          height: '100px',
-                          objectFit: 'cover',
+                          fontSize: '9px',
+                          fontFamily: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
+                          color: '#6c757d',
+                          wordBreak: 'break-all',
+                          lineHeight: 1.35,
+                          padding: '8px',
                           borderRadius: '4px',
-                          border: '1px solid #ddd'
+                          border: '1px solid #dee2e6',
+                          backgroundColor: '#f8f9fa',
                         }}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
+                        title="ItemStorage.getImageDir()"
+                      >
+                        {getItemStorageDir(image)}
+                      </div>
                       <span style={{
                         fontSize: '10px',
                         color: '#495057',
@@ -393,13 +401,6 @@ const BundleResearchModal: React.FC<BundleResearchModalProps> = ({
                 overflowY: 'auto'
               }}>
                 {researchResultImages.map((image) => {
-                  // Use ItemStorage to get the image URL
-                  const itemStorage = image.parentId 
-                    ? new ItemStorage(image._id, image.extension || 'jpg', image.parentId)
-                    : new ItemStorage(image._id, image.extension || 'jpg');
-                  const imagePath = itemStorage.getImageFile();
-                  const imageUrl = `${config.s3BucketUrl}/${imagePath}`;
-                  
                   return (
                     <div
                       key={image._id}
@@ -424,20 +425,23 @@ const BundleResearchModal: React.FC<BundleResearchModalProps> = ({
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      <img
-                        src={imageUrl}
-                        alt={image._id}
+                      <div
                         style={{
                           width: '100%',
-                          height: '100px',
-                          objectFit: 'cover',
+                          fontSize: '9px',
+                          fontFamily: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
+                          color: '#6c757d',
+                          wordBreak: 'break-all',
+                          lineHeight: 1.35,
+                          padding: '8px',
                           borderRadius: '4px',
-                          border: '1px solid #ddd'
+                          border: '1px solid #dee2e6',
+                          backgroundColor: '#f8f9fa',
                         }}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
+                        title="ItemStorage.getImageDir()"
+                      >
+                        {getItemStorageDir(image)}
+                      </div>
                       <span style={{
                         fontSize: '10px',
                         color: '#495057',

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { imageService, ApiError } from '../../services';
-import styles from './ImageCreate.module.css';
+import styles from './ItemCreate.module.css';
 
-interface ImageCreateIntentProps {
+interface ItemCreateIntentProps {
   onUploadSuccess: () => void;
 }
 
@@ -15,7 +15,7 @@ interface FileWithId {
   uploadUrl?: string;
 }
 
-const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }) => {
+const ItemCreateIntent: React.FC<ItemCreateIntentProps> = ({ onUploadSuccess }) => {
   const [uploading, setUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileWithId[]>([]);
   const [currentUploadIndex, setCurrentUploadIndex] = useState<number | null>(null);
@@ -185,7 +185,7 @@ const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }
 
   const handleCopyAllIds = async () => {
     if (selectedFiles.length === 0) {
-      alert('No images selected to copy IDs');
+      alert('No items selected to copy IDs');
       return;
     }
     
@@ -272,7 +272,7 @@ const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }
           <p className={styles.fileHint}>
             Supported formats: JPG, PNG, GIF, WebP (Max size: 30MB per file)
             <br />
-            You can select multiple images at once
+            You can select multiple files at once
             <br />
             <strong>Upload Flow: Intent → S3 Upload → Confirm</strong>
           </p>
@@ -281,7 +281,7 @@ const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }
         {selectedFiles.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <strong style={{ color: '#333' }}>Selected Images ({selectedFiles.length}):</strong>
+              <strong style={{ color: '#333' }}>Selected files ({selectedFiles.length}):</strong>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   type="button"
@@ -410,7 +410,7 @@ const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }
                         justifyContent: 'center',
                         padding: 0
                       }}
-                      title="Remove this image"
+                      title="Remove this file"
                     >
                       ×
                     </button>
@@ -440,12 +440,12 @@ const ImageCreateIntent: React.FC<ImageCreateIntentProps> = ({ onUploadSuccess }
         >
           {uploading 
             ? `Uploading ${currentUploadIndex !== null ? `${currentUploadIndex + 1}/${selectedFiles.length}` : ''}...` 
-            : `Upload ${selectedFiles.length} Image${selectedFiles.length !== 1 ? 's' : ''}`}
+            : `Upload ${selectedFiles.length} file${selectedFiles.length !== 1 ? 's' : ''}`}
         </button>
       </form>
     </div>
   );
 };
 
-export default ImageCreateIntent;
+export default ItemCreateIntent;
 

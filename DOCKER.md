@@ -120,7 +120,6 @@ The container supports runtime environment variables that override build-time va
 ```bash
 docker run -p 8080:80 \
   -e VITE_API_BASE_URL=https://api.example.com \
-  -e VITE_S3_BUCKET_URL=https://s3.example.com/bucket \
   rnd-app:latest
 ```
 

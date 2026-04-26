@@ -1,0 +1,117 @@
+.itemRow {
+  background-color: var(--bg-white);
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.itemCard {
+  background-color: var(--bg-light);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.topSection {
+  padding: 14px var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background-color var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+  gap: var(--spacing-lg);
+}
+
+.topSection:hover {
+  background-color: var(--bg-hover);
+}
+
+.leftContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemId {
+  margin: 0 0 6px 0;
+  font-size: var(--font-lg);
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.storagePath {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.statusBadges {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.statusBadge {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  padding: 6px 10px;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.actionButtonSuccess {
+  background-color: #666;
+}
+
+.actionButtonInfo {
+  background-color: #666;
+}
+
+.actionButtonPrimary {
+  background-color: #666;
+}
+
+.actionButtonDisabled {
+  background-color: var(--color-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}

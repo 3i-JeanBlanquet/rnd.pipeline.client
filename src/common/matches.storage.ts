@@ -3,6 +3,10 @@ export class MatchStorage{
     private _matchId:string
   ){}
 
+  public getMatchesDir():string{
+    return `matches/${this._matchId}/`;
+  }
+
   public getMatches0File():string{
     return `matches/${this._matchId}/matches0.npy`;
   }

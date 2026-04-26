@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { matchService, MatchData, ApiError } from '../../services';
 import { GetMatchesRequest, MatchFilterRequest } from '../../models';
+import { MatchStorage } from '../../common/matches.storage';
 import MatchSearchFilterPanel from '../common/MatchSearchFilterPanel';
 import styles from './MatchGallery.module.css';
+
+const getMatchFolderPath = (match: MatchData): string =>
+  new MatchStorage(match._id).getMatchesDir();
 
 interface MatchGalleryProps {
   onDeleteMatch?: (id: string) => void;
@@ -218,7 +222,7 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #e9ecef' }}>
-                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Match Image</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Folder path</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Match ID</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Item ID 0</th>
                   <th style={{ padding: '16px', textAlign: 'left', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>Item ID 1</th>
@@ -230,32 +234,23 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
               </thead>
               <tbody>
                 {matches.map((match) => (
-                  <tr key={match.id} style={{ borderBottom: '1px solid #e9ecef' }}>
-                    <td style={{ padding: '8px' }}>
-                      <img
-                        src={matchService.getMatchImageUrl(match)}
-                        alt={`Match ${match._id}`}
-                        onClick={() => handleMatchClick(match)}
-                        style={{
-                          width: '80px',
-                          height: '60px',
-                          objectFit: 'cover',
-                          borderRadius: '4px',
-                          border: '1px solid #ddd',
-                          cursor: 'pointer',
-                          transition: 'transform 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                        onError={(e) => {
-                          // Handle image load error
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
+                  <tr
+                    key={match._id || match.id}
+                    style={{ borderBottom: '1px solid #e9ecef', cursor: 'pointer' }}
+                    onClick={() => handleMatchClick(match)}
+                  >
+                    <td
+                      style={{
+                        padding: '8px',
+                        maxWidth: '280px',
+                        fontSize: '11px',
+                        fontFamily: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
+                        color: '#495057',
+                        wordBreak: 'break-all',
+                      }}
+                      title="MatchStorage.getMatchesDir()"
+                    >
+                      {getMatchFolderPath(match)}
                     </td>
                     <td style={{ padding: '4px', fontSize: '12px', color: '#333', fontFamily: 'monospace' }}>
                       {match._id}
@@ -272,7 +267,10 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
                     {onDeleteMatch && (
                       <td style={{ padding: '8px' }}>
                         <button
-                          onClick={() => onDeleteMatch(match._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteMatch(match._id);
+                          }}
                           style={{
                             padding: '4px 8px',
                             backgroundColor: '#dc3545',
@@ -346,25 +344,28 @@ const MatchGallery: React.FC<MatchGalleryProps> = ({
             >
               ×
             </button>
-            <img
-              src={matchService.getMatchImageUrl(selectedMatch)}
-              alt={`Match ${selectedMatch._id}`}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '80vh',
-                objectFit: 'contain',
-                display: 'block'
-              }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                const errorDiv = document.createElement('div');
-                errorDiv.textContent = 'Image not available';
-                errorDiv.style.textAlign = 'center';
-                errorDiv.style.padding = '40px';
-                errorDiv.style.color = '#666';
-                e.currentTarget.parentNode?.insertBefore(errorDiv, e.currentTarget);
-              }}
-            />
+            <div style={{ marginTop: '8px', marginBottom: '16px' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '11px', fontWeight: 600, color: '#6c757d', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                MatchStorage.getMatchesDir()
+              </p>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: '12px',
+                  fontFamily: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
+                  color: '#212529',
+                  wordBreak: 'break-all',
+                  lineHeight: 1.45,
+                  padding: '12px',
+                  backgroundColor: '#f8f9fa',
+                  border: '1px solid #dee2e6',
+                  borderRadius: '6px',
+                }}
+                title="Relative storage folder for this match"
+              >
+                {getMatchFolderPath(selectedMatch)}
+              </p>
+            </div>
             <div style={{ marginTop: '10px', textAlign: 'center' }}>
               <p style={{ margin: '5px 0', fontSize: '14px', color: '#333' }}>
                 <strong>Match ID:</strong> {selectedMatch._id}

@@ -1,9 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BundleData, bundleService, ApiResponse } from '../../services';
+import { BundleData, bundleService, ApiResponse, matchService, ApiError } from '../../services';
+import { MatchData } from '../../models';
 import { getStatusColor, getStatusTextColor } from '../../utils/statusUtils';
-import BundleDetails from './BundleDetails';
+import { ItemStorage } from '../../common/item.storage';
+import { MatchStorage } from '../../common/matches.storage';
 import BundleResearchModal from './BundleResearchModal';
-import BundleMatchesGallery from './BundleMatchesGallery';
+
+const itemFolderPath = (itemId: string) => new ItemStorage(itemId, 'jpg').getImageDir();
+const matchFolderPath = (matchId: string) => new MatchStorage(matchId).getMatchesDir();
+
+function parseMatchesFromBundleResponse(responseData: unknown): MatchData[] {
+  if (!responseData || typeof responseData !== 'object') return [];
+  const d = responseData as Record<string, unknown>;
+  if (Array.isArray(d.data) && d.pagination) return d.data as MatchData[];
+  if (Array.isArray(d.items) && d.pagination) return d.items as MatchData[];
+  if (Array.isArray(responseData)) return responseData as MatchData[];
+  return [];
+}
 
 interface BundleRowProps {
   bundle: BundleData;
@@ -11,9 +24,6 @@ interface BundleRowProps {
   onToggleExpansion: (bundleId: string) => void;
   onBundleClick: (bundle: BundleData) => void;
   onDeleteBundle?: (id: string) => void;
-  onImageClick: (imageUrl: string, imageId: string) => void;
-  onDownloadZip: (bundle: BundleData) => void;
-  downloading: string | null;
   onRefresh: () => void;
   onShowProcessingNotification?: (bundleId: string) => void;
 }
@@ -24,9 +34,6 @@ const BundleRow: React.FC<BundleRowProps> = ({
   onToggleExpansion,
   onBundleClick,
   onDeleteBundle,
-  onImageClick,
-  onDownloadZip,
-  downloading,
   onRefresh,
   onShowProcessingNotification
 }) => {
@@ -41,7 +48,41 @@ const BundleRow: React.FC<BundleRowProps> = ({
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showRunButtons, setShowRunButtons] = useState(false);
   const [showResearchModal, setShowResearchModal] = useState(false);
+  const [bundleMatches, setBundleMatches] = useState<MatchData[]>([]);
+  const [bundleMatchesLoading, setBundleMatchesLoading] = useState(false);
+  const [bundleMatchesError, setBundleMatchesError] = useState<string | null>(null);
   const actionsMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    let cancelled = false;
+    (async () => {
+      setBundleMatchesLoading(true);
+      setBundleMatchesError(null);
+      try {
+        const response = await matchService.getMatchesByBundleId(
+          bundle._id,
+          1,
+          500,
+          'createdAt',
+          'desc'
+        );
+        const list = parseMatchesFromBundleResponse(response.data);
+        if (!cancelled) setBundleMatches(list);
+      } catch (err) {
+        const apiError = err as ApiError;
+        if (!cancelled) {
+          setBundleMatchesError(apiError.message ?? 'Failed to load matches');
+          setBundleMatches([]);
+        }
+      } finally {
+        if (!cancelled) setBundleMatchesLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isExpanded, bundle._id]);
 
   // Close actions menu when clicking outside
   useEffect(() => {
@@ -571,39 +612,6 @@ const BundleRow: React.FC<BundleRowProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onDownloadZip(bundle);
-                      setShowActionsMenu(false);
-                    }}
-                    disabled={downloading === bundle._id}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      backgroundColor: 'transparent',
-                      color: downloading === bundle._id ? '#6c757d' : '#17a2b8',
-                      border: 'none',
-                      borderBottom: '1px solid #e9ecef',
-                      cursor: downloading === bundle._id ? 'not-allowed' : 'pointer',
-                      fontSize: '12px',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      opacity: downloading === bundle._id ? 0.6 : 1
-                    }}
-                    onMouseEnter={(e) => {
-                      if (downloading !== bundle._id) {
-                        e.currentTarget.style.backgroundColor = '#f8f9fa';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    {downloading === bundle._id ? '⏳' : '📦'} Download ZIP
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
                       onBundleClick(bundle);
                       setShowActionsMenu(false);
                     }}
@@ -909,21 +917,80 @@ const BundleRow: React.FC<BundleRowProps> = ({
         </div>
       </div>
       
-      {/* Expandable items section */}
       {isExpanded && (
-        <>
-          <BundleDetails
-            bundle={bundle}
-            onImageClick={onImageClick}
-          />
-          <BundleMatchesGallery
-            bundle={bundle}
-            onMatchClick={(match) => {
-              // Optional: handle match click if needed
-              console.log('Match clicked:', match);
-            }}
-          />
-        </>
+        <div
+          style={{
+            padding: '6px 12px 8px',
+            backgroundColor: '#f8f9fa',
+            borderTop: '1px solid #e9ecef',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <section>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 600, color: '#495057' }}>
+              Items ({bundle.itemIds.length})
+            </h4>
+            {bundle.itemIds.length === 0 ? (
+              <p style={{ margin: 0, fontSize: '12px', color: '#868e96' }}>No items</p>
+            ) : (
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                {bundle.itemIds.map((itemId, i) => (
+                  <li
+                    key={itemId}
+                    style={{
+                      padding: '3px 0',
+                      borderBottom: i < bundle.itemIds.length - 1 ? '1px solid #dee2e6' : 'none',
+                      fontFamily: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
+                      fontSize: '11px',
+                      color: '#495057',
+                      wordBreak: 'break-all',
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {itemFolderPath(itemId)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: 600, color: '#495057' }}>
+              Matches
+            </h4>
+            {bundleMatchesLoading && (
+              <p style={{ margin: 0, fontSize: '12px', color: '#868e96' }}>Loading matches…</p>
+            )}
+            {!bundleMatchesLoading && bundleMatchesError && (
+              <p style={{ margin: 0, fontSize: '12px', color: '#c92a2a' }}>{bundleMatchesError}</p>
+            )}
+            {!bundleMatchesLoading && !bundleMatchesError && bundleMatches.length === 0 && (
+              <p style={{ margin: 0, fontSize: '12px', color: '#868e96' }}>No matches</p>
+            )}
+            {!bundleMatchesLoading && !bundleMatchesError && bundleMatches.length > 0 && (
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                {bundleMatches.map((m, i) => (
+                  <li
+                    key={m._id}
+                    style={{
+                      padding: '3px 0',
+                      borderBottom: i < bundleMatches.length - 1 ? '1px solid #dee2e6' : 'none',
+                      fontFamily: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
+                      fontSize: '11px',
+                      color: '#495057',
+                      wordBreak: 'break-all',
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {matchFolderPath(m._id)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
       )}
 
       {/* Research Modal */}

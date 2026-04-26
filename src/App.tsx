@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Expandable from './components/common/Expandable';
-import ImageCreateIntent from './components/images/ImageCreateIntent';
-import ImageGallery from './components/images/ImageGallery';
+import ItemCreateIntent from './components/items/ItemCreateIntent';
+import ItemGallery from './components/items/ItemGallery';
 import MatchCreate from './components/matches/MatchCreate';
 import MatchGallery from './components/matches/MatchGallery';
 import BundleGallery from './components/bundles/BundleGallery';
@@ -90,14 +90,14 @@ const App: React.FC = () => {
               title="NEW"
               icon={<MatchAddIcon color="#333" />}
           >
-            <ImageCreateIntent onUploadSuccess={() => {}} />
+            <ItemCreateIntent onUploadSuccess={() => {}} />
           </Expandable>
           
           <Expandable 
               title="LIST"
               icon={<ItemListIcon color="#333" />}
           >
-            <ImageGallery />
+            <ItemGallery />
             </Expandable>
           </Expandable>
           

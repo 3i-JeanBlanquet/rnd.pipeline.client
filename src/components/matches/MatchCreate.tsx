@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ImageData, ApiError, matchService, imageService, ProcessingStatus } from '../../services';
 import { GetItemsRequest } from '../../models';
-import ImageFallback from '../images/ImageFallback';
+import { previewPlaceholder } from '../common/previewPlaceholder';
 import styles from './MatchCreate.module.css';
 
 interface MatchCreateProps {
@@ -15,7 +15,6 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
   const [selectedImage1, setSelectedImage1] = useState<ImageData | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [filterItemIds, setFilterItemIds] = useState<string>('');
 
   // Helper function to parse item IDs from input string
@@ -103,16 +102,6 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
     return imagesWithFeature.filter(img => itemIdsList.includes(img._id));
   }, [imagesWithFeature, filterItemIds]);
 
-  const handleImageError = (imageId: string, imageType: string) => {
-    const errorKey = `${imageId}-${imageType}`;
-    setImageErrors(prev => new Set(prev).add(errorKey));
-  };
-
-  const isImageError = (imageId: string, imageType: string): boolean => {
-    const errorKey = `${imageId}-${imageType}`;
-    return imageErrors.has(errorKey);
-  };
-
   const handleSelectImage = (image: ImageData, slot: 0 | 1) => {
     if (slot === 0) {
       setSelectedImage0(image);
@@ -182,7 +171,6 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
             type="button"
             onClick={() => {
               fetchCandidateImages();
-              setImageErrors(new Set()); // Clear image errors on refresh
             }}
             disabled={loading}
             style={{
@@ -266,22 +254,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
                     backgroundColor: '#f8fff9'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
-                      {isImageError(selectedImage0._id, 'feature') ? (
-                        <ImageFallback imageType="Feature" size="80px" />
-                      ) : (
-                        <img
-                          src={imageService.getFeatureUrl(selectedImage0)}
-                          alt={`Feature ${selectedImage0._id}`}
-                          onError={() => handleImageError(selectedImage0._id, 'feature')}
-                          style={{
-                            width: '80px',
-                            height: '80px',
-                            objectFit: 'cover',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd'
-                          }}
-                        />
-                      )}
+                      {previewPlaceholder('Feature', '80px')}
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
                           <strong>Parent:</strong> {selectedImage0.parentId}
@@ -335,22 +308,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
                     backgroundColor: '#f0f9fb'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
-                      {isImageError(selectedImage1._id, 'feature') ? (
-                        <ImageFallback imageType="Feature" size="80px" />
-                      ) : (
-                        <img
-                          src={imageService.getFeatureUrl(selectedImage1)}
-                          alt={`Feature ${selectedImage1._id}`}
-                          onError={() => handleImageError(selectedImage1._id, 'feature')}
-                          style={{
-                            width: '80px',
-                            height: '80px',
-                            objectFit: 'cover',
-                            borderRadius: '4px',
-                            border: '1px solid #ddd'
-                          }}
-                        />
-                      )}
+                      {previewPlaceholder('Feature', '80px')}
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
                           <strong>Parent:</strong> {selectedImage1.parentId}
@@ -494,22 +452,7 @@ const MatchCreate: React.FC<MatchCreateProps> = ({ onCreateSuccess }) => {
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      {isImageError(image._id, 'feature') ? (
-                        <ImageFallback imageType="Feature" size="100%" />
-                      ) : (
-                        <img
-                          src={imageService.getFeatureUrl(image)}
-                          alt={`Feature ${image._id}`}
-                          onError={() => handleImageError(image._id, 'feature')}
-                          style={{
-                            width: '100%',
-                            height: '100px',
-                            objectFit: 'cover',
-                            borderRadius: '4px',
-                            display: 'block'
-                          }}
-                        />
-                      )}
+                      {previewPlaceholder('Feature', '100%')}
                       <div style={{
                         marginTop: '4px',
                         fontSize: '10px',
