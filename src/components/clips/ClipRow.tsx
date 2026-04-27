@@ -78,8 +78,11 @@ const ClipRow: React.FC<ClipRowProps> = ({
     });
   };
 
-  const getStatusText = (status?: ProcessingStatus): string => {
+  const getStatusText = (status?: ProcessingStatus | string): string => {
     if (!status) return 'Pending';
+    if (typeof status === 'string' && status.toLowerCase() === 'error') {
+      return '⚠ Error';
+    }
     switch (status) {
       case ProcessingStatus.PROCESSED:
         return '✓ Processed';
@@ -174,15 +177,21 @@ const ClipRow: React.FC<ClipRowProps> = ({
               </p>
               {/* Status badge */}
               <div className={styles.statusBadges}>
+                {(() => {
+                  const currentStatus = clip.status || ProcessingStatus.PENDING;
+                  const isErrorStatus = typeof currentStatus === 'string' && currentStatus.toLowerCase() === 'error';
+                  return (
                 <span
                   className={styles.statusBadge}
                   style={{
-                    backgroundColor: getStatusColor(clip.status || ProcessingStatus.PENDING),
-                    color: getStatusTextColor(clip.status || ProcessingStatus.PENDING)
+                    backgroundColor: isErrorStatus ? '#f8d7da' : getStatusColor(currentStatus as ProcessingStatus),
+                    color: isErrorStatus ? '#721c24' : getStatusTextColor(currentStatus as ProcessingStatus)
                   }}
                 >
-                  {getStatusText(clip.status)}
+                  {getStatusText(currentStatus)}
                 </span>
+                  );
+                })()}
               </div>
             </div>
           </div>
